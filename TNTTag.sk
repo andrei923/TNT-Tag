@@ -4,13 +4,7 @@
 on load:	
 	set {_&} to "&"	
 	if yaml value "CHAT-FORMAT" from file "plugins/TNTTag/config.yml" is not set:	
-		set yaml value "CHAT-FORMAT" from file "plugins/TNTTag/config.yml" to "%{_&}%3{player} %{_&}%8%{_&}%l{arrow-right} %{_&}%7{message}"			
-	if yaml value "COMMANDS.KILL" from file "plugins/TNTTag/config.yml" is not set:	
-		set yaml value "COMMANDS.KILL" from file "plugins/TNTTag/config.yml" to "eco give {player} 5"		
-	if yaml value "COMMANDS.WIN" from file "plugins/TNTTag/config.yml" is not set:	
-		set yaml value "COMMANDS.WIN" from file "plugins/TNTTag/config.yml" to "eco give {player} 20"	
-	if yaml value "COMMANDS.GOAL" from file "plugins/TNTTag/config.yml" is not set:	
-		set yaml value "COMMANDS.GOAL" from file "plugins/TNTTag/config.yml" to "eco give {player} 10"		
+		set yaml value "CHAT-FORMAT" from file "plugins/TNTTag/config.yml" to "%{_&}%3{player} %{_&}%8%{_&}%l{arrow-right} %{_&}%7{message}"				
 	if yaml value "TIMERS.WAITING" from file "plugins/TNTTag/config.yml" is not set:	
 		set yaml value "TIMERS.WAITING" from file "plugins/TNTTag/config.yml" to 30			
 	if yaml value "ITEMS.LEAVE" from file "plugins/TNTTag/config.yml" is not set:	
@@ -73,7 +67,7 @@ command /tnttag [<text = help>] [<text>] [<text>]:
 		if arg-1 is "help" or "createarena" or "SetSpawn" or "join" or "leave" or "setlobby" or "deleteArena" or "list" or "autojoin" or "savearena" or "autojoin" or "stats" or "SetArenaLobby" or "start" or "reload" or "SetMin" or "SetMax" or "SetSpawn" or "SetMapName":
 			if player have permission "tnt.player":
 				if arg 1 is "help":
-					send "&7&l------------&8[ &6&ltntTag &8]&7&l------------"
+					send "&7&l------------&8[ &6&lTNT Tag &8]&7&l------------"
 					send "&7/tnt list"
 					send "&7/tnt join &8(&7arena_name&8)"
 					send "&7/tnt autojoin"
@@ -90,8 +84,9 @@ command /tnttag [<text = help>] [<text>] [<text>]:
 						send "&7/tnt SetMapName &8(&7arena_name&8)"						
 						send "&7/tnt SaveArena &8(&7arena_name&8)"							
 						send "&7/tnt DeleteArena &8(&7arena_name&8)"					
-						send "&7&l------------------------------------------"
-						stop
+						send "&7&l----------------------------------------"
+					else:
+						send "&7&l----------------------------------------"
 				if arg 1 is "join":		
 					tnt_join(player, arg-2)
 				if arg 1 is "list":		
@@ -250,7 +245,6 @@ on damage of player:
 					milk attacker
 					apply potion of speed 2 without any particles to attacker for 7 days
 					launch "CREEPER" firework at block above victim timed 0 coloured "GREEN"
-					make console execute command "nte player %attacker% prefix &7"
 					send "%attacker's prefix%%attacker% &cTagged you!" to victim
 					send "&aYou tagged %victim's prefix%%victim%!" to attacker	
 			else:
@@ -291,7 +285,7 @@ on load:
 	delete {tnt.player::*}
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "%{tnt::CONFIG::MESSAGES.PREFIX}% &aLoading &ev.0.0.1&a..." to console
+	send "%{tnt::CONFIG::MESSAGES.PREFIX}% &aLoading &ev.0.0.2&a..." to console
 	wait a tick
 	broadcast "%{tnt::CONFIG::MESSAGES.PREFIX}% &aPlugin loaded!"
 	send " " to console
@@ -304,8 +298,8 @@ on load:
 on unload:
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "%{tnt::CONFIG::MESSAGES.PREFIX}% &aDisabling &ev.0.0.1&a..." to console
-	send "%{tnt::CONFIG::MESSAGES.PREFIX}% &ev.0.0.1 &adisabled!" to console
+	send "%{tnt::CONFIG::MESSAGES.PREFIX}% &aDisabling &ev.0.0.2&a..." to console
+	send "%{tnt::CONFIG::MESSAGES.PREFIX}% &ev.0.0.2 &adisabled!" to console
 	send " " to console
 	send "&7&l--------------------------------------------" to console
 
@@ -322,21 +316,24 @@ function tnt_stats(do: text, p: player):
 	
 function tnt_leave(p: player):
 	set {_uuid} to uuid of {_p}
-	if {tnt.player::%{_uuid}%.state} is "IN-GAME":
+	if {tnt.player::%{_uuid}%.state} is "IN-GAME" or "IN-GAME-SPEC":
 		set {_arena} to {tnt.player::%{_uuid}%.arena}
-		set {_msg} to {tnt::CONFIG::MESSAGES.LEFT-MESSAGE}
-		replace all "{player}" in {_msg} with {_p}'s display name
-		tnt_remove({_p}, {tnt.player::%{_uuid}%.arena})
-		send "%{tnt::CONFIG::MESSAGES.PREFIX}% %{_msg}%" to {tnt.arena.%{tnt.player::%{_uuid}%.arena}%.ninjas::*}	
-		loop {tnt.arena.%{_arena}%.ninjas::*}:
-			size of {tnt.arena.%{_arena}%.ninjas::*} = 4 or 3 or 2 or 1:
-				set {_size} to size of {tnt.arena.%{_arena}%.ninjas::*}
-				set {tnt.arena.%{_arena}%.summary.%{_size}%} to loop-value-2		
-		tnt_check_win({tnt.player::%{_uuid}%.arena})	
+		if {tnt.player::%{_uuid}%.state} is "IN-GAME":
+			set {_msg} to {tnt::CONFIG::MESSAGES.LEFT-MESSAGE}
+			replace all "{player}" in {_msg} with {_p}'s display name
+			tnt_remove({_p}, {tnt.player::%{_uuid}%.arena})
+			send "%{tnt::CONFIG::MESSAGES.PREFIX}% %{_msg}%" to {tnt.arena.%{_arena}%.ninjas::*}	
+			loop {tnt.arena.%{_arena}%.ninjas::*}:
+				size of {tnt.arena.%{_arena}%.ninjas::*} = 4 or 3 or 2 or 1:
+					set {_size} to size of {tnt.arena.%{_arena}%.ninjas::*}
+					set {tnt.arena.%{_arena}%.summary.%{_size}%} to loop-value-2		
+			tnt_check_win({tnt.player::%{_uuid}%.arena})	
+		if {tnt.player::%{_uuid}%.state} is "IN-GAME-SPEC":
+			remove {_p} from {tnt.arena.%{_arena}%.bad-ninjas::*}
 		tnt_clear_player({_p})
 		tnt_deleteBoard({_p})
 		loop "arena" and "state" and "has-tnt":
-			delete {tnt.player::%{_uuid}%.%loop-value%}			
+			delete {tnt.player::%{_uuid}%.%loop-value%}				
 		teleport {_p} to {tnt.lobby}
 	else:
 		send "%{tnt::CONFIG::MESSAGES.PREFIX}% %{tnt::CONFIG::MESSAGES.NOT-IN-GAME}%" to {_p}
@@ -364,6 +361,9 @@ function tnt_join(p: player, arena: text):
 					teleport {_p} to {tnt.arena.%{_arena}%.lobby}
 					tnt_createBoard({_p}, "TNT-WAITING", 10)
 				else:
+					tnt_setspec({_p})
+					add {_p} to {tnt.arena.%{_arena}%.bad-ninjas::*}
+					teleport {_p} to a random element out of {tnt.arena.%{_arena}%.bad-ninjas::*}
 					send "%{tnt::CONFIG::MESSAGES.PREFIX}% &7This arena is full" to {_p}
 			else:
 				send "%{tnt::CONFIG::MESSAGES.PREFIX}% &7This game is running" to {_p}
@@ -377,9 +377,16 @@ on join:
 		
 on right click:
 	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
-		name of event-item is {tnt::CONFIG::ITEMS.LEAVE-NAME}:
+		name of event-item is {tnt::CONFIG::ITEMS.LEAVE-NAME} or "&aPlayer Teleporter":
 			cancel event
+		name of event-item is {tnt::CONFIG::ITEMS.LEAVE-NAME}:	
 			tnt_leave(player)
+		name of event-item is "&aPlayer Teleporter":
+			open chest inventory with 6 rows named "&8&l» &7Player Teleporter" to player			
+			loop {tnt.arena.%{tnt.player::%uuid of player%.arena}%.ninjas::*}:
+				add 1 to {_slot}
+				format_slot(player's current inventory, {_slot}-1, 1, zombie skull, "&e%loop-value%", "")			
+		
 on quit:
 	tnt_leave(player)
 
@@ -396,9 +403,15 @@ on inventory click:
 		cancel event
 		event-item is green clay
 		set {_arena} to line 1 of the lore of event-item 
-		tnt_join(player, last element of {_arena} split at "&8&l» &7ARENA: &e&l")
+		tnt_join(player, last element of {_arena} split at "&8&l» &7ARENA: &e&l")		
 	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
 		cancel event
+	if {tnt.player::%uuid of player%.state} is "IN-GAME-SPEC":
+		display name of top inventory of player is "&8&l» &7Player Teleporter"
+		set {_p} to uncolored name of event-item
+		replace all "&e" with "" in {_p}
+		teleport player to {_p} parsed as player
+			
 	
 function tnt_start_round(arena: text):
 	set {tnt.arena.%{_arena}%.explode} to 55
@@ -465,7 +478,6 @@ function tnt_set(arena: text, p: player):
 		set {_p}'s helmet to tnt
 		apply potion of speed 4 without any particles to {_p} for 7 days
 		send "%{_p}'s prefix%%{_p}% &7is IT!" to {tnt.arena.%{_arena}%.ninjas::*}
-		make console execute command "nte player %{_p}% prefix &c"
 		while {tnt.player::%{_uuid}%.has-tnt} is set:
 			show mob spawner flames at {_p}
 			wait a second
@@ -480,8 +492,9 @@ function tnt_setspec(p: player):
 	set {_p}'s flight mode to true	
 	apply potion of invisibility without any particles to {_p} for 7 days
 	push {_p} upwards at speed 2
-	make console execute command "nte player %{_p}% clear"
 	hide {_p} from all players
+	set slot 0 of {_p} to compass named "&aPlayer Teleporter"
+	set slot 8 of {_p} to {tnt::CONFIG::ITEMS.LEAVE} parsed as material named "%{tnt::CONFIG::ITEMS.LEAVE-NAME}%"
 	send title "&c&lBOOM" with subtitle "&7&nYou are eliminated!" to {_p} for 3 seconds
 				
 function tnt_start(arena: text):
@@ -494,7 +507,6 @@ function tnt_start(arena: text):
 		apply blindness to loop-value for 1 second
 		apply potion of speed 2 without any particles to loop-value for 7 days		
 		teleport loop-value-1 to {tnt.arena.%{_arena}%.spawn}
-		make console execute command "nte player %loop-value-1% prefix &7"
 	wait a second
 	if {tnt.arena.%{_arena}%.status} is "INGAME":
 		tnt_start_round({_arena})
