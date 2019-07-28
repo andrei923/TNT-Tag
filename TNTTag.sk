@@ -3,26 +3,25 @@ options:
 	#MESSAGES
 	prefix: &6&lTNT TAG &8&l» &7
 	
-	#%size of {tnt.arena.%{_arena}%.ninjas::*}% = current players, %{tnt.arena.%{_arena}%.max}% = max arena players.
-	join: &a%{_p}'s displayname% &ehas joined to the game &e(&b%size of {tnt.arena.%{_arena}%.ninjas::*}%&e/&b%{tnt.arena.%{_arena}%.max}%&e).
-	leave: &7%{_p}'s displayname% &ehas left the game.
-	starting: &eStarting in &6%{tnt.arena.%{_arena}%.seconds}% &eseconds
+	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
+	join: &a%{_p}'s display name% &ehas joined to the game &e(&b%size of {tnt::arena::%{_arena}%::ninjas::*}%&e/&b%{tnt::arena::%{_arena}%::max}%&e).
+	leave: &7%{_p}'s display name% &ehas left the game.
+	starting: &eStarting in &6%{tnt::arena::%{_arena}%::seconds}% &eseconds
 	in-game: &cYou are in game.
 	not-in-game: &cYou are not in game.
-	pass-tnt: &7%{_p}'s displayname% &7is IT!
-	death: &7%{_p}'s displayname% &eblew up!
+	pass-tnt: &7%{_p}'s display name% &7is IT!
+	death: &7%{_p}'s display name% &eblew up!
 	game-full: &7This arena is full.
 	game-running: &7This game already started.
 	not-exist: &7This arena not exists.
 	summary: "&a-------------------------------------", "", "&e&lTNTTag", "", "&e1st Place: - &7%{_place.1}%", "&e2nd Place: - &7%{_place.2}%", "&e3rd Place: - &7%{_place.3}%", "" and "&a-------------------------------------"
-	start-round: "", "&f&lRound %{tnt.arena.%{_arena}%.round}% Has Started!", "&eThe TNT has been released to &7%{tnt.arena.%{_arena}%.exploding-ninjas::*}%", "" and "%{_run-or-tag}%"
+	start-round: "", "&f&lRound %{tnt::arena::%{_arena}%::round}% Has Started!", "&eThe TNT has been released to &7%{tnt::arena::%{_arena}%::exploding-ninjas::*}%", "" and "%{_run-or-tag}%"
 	tag: &cYou START as IT! Tag Someone
 	run: &aYou did NOT start as IT! Run away!
-	tag-player: &aYou tagged %victim's displayname%
-	get-tagged: %attacker's displayname% &cTagged you!
+	tag-player: &aYou tagged %victim's display name%
+	get-tagged: %attacker's display name% &cTagged you!
 	second: second
 	seconds: seconds
-
 
 	#SCOREBOARD
 	target-tag: &cTag Someone!
@@ -30,7 +29,7 @@ options:
 	website: &eMC.SERVER.NET
 	
 	#SETTINGS
-	chat-format: &7%player's displayname% &8&l» &7%message%
+	chat-format: &7%player's display name% &8&l» &7%message%
 	lobby-time: 30
 	action-bar-tag: &cYou're IT, &ctag Someone! &7(&aNearest player %{_closest}%m&7)
 	action-bar-run: &aRun away!
@@ -51,14 +50,14 @@ options:
 	death-title: &c&lBOOM
 	death-subtitle: &7&nYou are eliminated!
 
-	game-start-title: &eGame Starts in &a%{tnt.arena.%{_arena}%.seconds}%
+	game-start-title: &eGame Starts in &a%{tnt::arena::%{_arena}%::seconds}%
 	game-start-subtitle: &e%{_time}%
 
 	#SIGN
 
 	line-1: &8» &7Arena: &b%{_arena}% &8«
-	line-2: &8» &a%{tnt.arena.%{_arena}%.status}% &8«
-	line-3: &8» &7Playing &3%size of {tnt.arena.%{_arena}%.ninjas::*}%&7/&3%{tnt.arena.%{_arena}%.max}% &8«
+	line-2: &8» &a%{tnt::arena::%{_arena}%::status}% &8«
+	line-3: &8» &7Playing &3%size of {tnt::arena::%{_arena}%::ninjas::*}%&7/&3%{tnt::arena::%{_arena}%::max}% &8«
 	line-4:	&e	 
 
 
@@ -66,15 +65,39 @@ options:
 #
 #CODE
 #
+import:			
+	org.bukkit.Bukkit
 
-function format_slot(inv: inventory, slot: number, amount: number, item: item, name: text = "", lore: text = ""):
-	{_lore} is not "":
-		set {_line} to 1
-		loop {_lore} split at "||":
-			set line {_line} of the lore of {_item} to colored loop-value-1
-			add 1 to {_line}
-	set slot {_slot} of {_inv} to {_amount} of {_item} named {_name}
-		
+local effect [leaf] send title %string% with subtitle %string% to %players% with %number% fadein and %number% fadeout for %number%:		
+	trigger:
+		loop exprs-3:
+			{tnt::cache::TitleManager}.sendTitle(loop-value-1, expr-1, expr-4, expr-5 and expr-6)
+			{tnt::cache::TitleManager}.sendSubtitle(loop-value-1 and expr-2)
+
+local effect [leaf] send action[ ]bar %string% to %players%:		
+	trigger:
+		loop exprs-2:
+			{tnt::cache::TitleManager}.sendActionbar(loop-value-1, expr-1)
+			
+local effect create scoreboard for %player%:	
+	trigger:
+		if {tnt::cache::TitleManager}.hasScoreboard(expr-1) is true:
+			{tnt::cache::TitleManager}.removeScoreboard(expr-1)
+		{tnt::cache::TitleManager}.giveScoreboard(expr-1)
+
+local effect delete scoreboard of %player%:	
+	trigger:
+		{tnt::cache::TitleManager}.removeScoreboard(expr-1)	
+
+local effect set scoreboard title of %player% to %string%:	
+	trigger:
+		{tnt::cache::TitleManager}.setScoreboardTitle(expr-1, expr-2)
+
+local effect set scoreboard line %number% of %player% to %string%:	
+	trigger:
+		{tnt::cache::TitleManager}.setScoreboardValue(expr-2, expr-1, expr-3)
+
+
 command /tnttag [<text = help>] [<text>] [<text>]:
 	aliases: tnt
 	executable by: players
@@ -105,21 +128,29 @@ command /tnttag [<text = help>] [<text>] [<text>]:
 				if arg 1 is "join":		
 					tnt_join(player, arg-2)
 				if arg 1 is "list":		
-					if {tnt.player::%uuid of player%.state} is not set:	
+					if {tnt::player::%uuid of player%::state} is not set:	
 						open chest inventory with 6 rows named "{@arena-list}" to player	
-						set {_slot} to 10					
-						set slot 0, 1, 2, 3, 4, 5, 6, 7, 17, 26, 35, 44, 18, 27, 36, 9, 45, 46, 47, 48, 49, 50, 51, 52, 53 and 8 of player's current inventory to green glass pane named "&8 "			
-						loop {tnt.arenas::*}:
-							format_slot(player's current inventory, {_slot}, 1, green clay, "&e", "&8&l» &7ARENA: &e&l%loop-value%||||&8&l» &7MAP: &a%{tnt.arena.%loop-value%.map}%||||&8&l» &7PLAYING: &a%size of {tnt.arena.%loop-value%.ninjas::*}%&7/&a%{tnt.arena.%loop-value%.max}%||||&8&l» &7STATE: &a%{tnt.arena.%loop-value%.status}%")
+						set {_slot} to 10							
+						loop {tnt::arenas::*}:
+							set {_item} to green clay named "&8» &7Arena: &e%loop-value%"
+							set line 1 of {_item}'s lore to "&8▪ &7Map: &e%{tnt::arena::%loop-value%::map}%"	
+							set line 2 of {_item}'s lore to "&8▪ &7Status: &e%{tnt::arena::%loop-value%::status}%"								
+							set line 3 of {_item}'s lore to "&8▪ &7Playing: &e%size of {bg::arena::%loop-value%::cache::ninjas::*}%"	
+							make a gui slot {_slot} of player with {_item} to run function tnt_join(player, loop-value-1)
 							add 1 to {_slot}
 							if {_slot} is 17 or 26 or 35:
-								add 2 to {_slot}						
+								add 2 to {_slot}
+						while name of player's current inventory is "{@arena-list}":
+							loop  0, 1, 2, 3, 4 ,5, 6, 7, 8, 17, 26, 35, 44, 43, 42, 41, 40, 39, 38, 37, 36, 27, 18 and 9:
+								make a gui slot loop-value-1 of player with black glass named "&7Hi, &e&n%player's display name%&r &7OwO" to do nothing
+								wait a tick				
+								make a gui slot loop-value-1 of player with air to do nothing														
 				if arg 1 is "leave":	
 					tnt_leave(player)
 				if arg 1 is "autojoin":		
-					if {tnt.player::%uuid of player%.state} is not set:
-						loop {tnt.arenas::*}:
-							if {tnt.arena.%loop-value%.status} is "WAITING" or "STARTING":
+					if {tnt::player::%uuid of player%::state} is not set:
+						loop {tnt::arenas::*}:
+							if {tnt::arena::%loop-value%::status} is "WAITING" or "STARTING":
 								tnt_join(player, loop-value)
 								stop
 				if arg-1 is "stats":
@@ -127,15 +158,15 @@ command /tnttag [<text = help>] [<text>] [<text>]:
 					send ""
 					send "&8&l»          &6&lTNT Tag STATS        &8&l«"		
 					send ""				
-					send "&6&l» &7&lWins &c%{tnt.stats.wins::%uuid of player%}%"	
-					send "&6&l» &7&lLoses &c%{tnt.stats.loses::%uuid of player%}%"				
+					send "&6&l» &7&lWins &c%{tnt::stats::wins::%uuid of player%}%"	
+					send "&6&l» &7&lLoses &c%{tnt::stats::loses::%uuid of player%}%"				
 					send ""
 					send "&e&l✦&7&l&m--------------------------------------&e&l✦"
 				if arg 1 is "createarena":	
 					if player has permission "tnt.admin":		
 						if arg-2 is set:
-							if {tnt.arena.%arg-2%.state} is not set:
-								set {tnt.arena.%arg-2%.state} to "created"
+							if {tnt::arena::%arg-2%::state} is not set:
+								set {tnt::arena::%arg-2%::state} to "setup"
 								send "{@prefix}&aArena &c%arg-2% &ahas been created!"
 							else:
 								send "{@prefix}&aThis arena already exists!"	
@@ -143,27 +174,27 @@ command /tnttag [<text = help>] [<text>] [<text>]:
 							send "{@prefix}&aSpecify Arena!"				
 				if arg 1 is "SetArenaLobby" or "SetMax" or "SetMin" or "SetSpawn" or "SetMapName":
 					if player has permission "tnt.admin":	
-						if {tnt.arena.%arg-2%.state} is "created" or "ready":
+						if {tnt::arena::%arg-2%::state} is "setup" or "ready":
 							if arg 1 is "SetArenaLobby":
-								set {tnt.arena.%arg-2%.lobby} to location of player
+								set {tnt::arena::%arg-2%::lobby} to location of player
 								send "{@prefix}&aLobby for Arena &3%arg-2% &ahas been set!"
 							if arg 1 is "SetMax":
-								set {tnt.arena.%arg-2%.max} to arg-3 parsed as number
+								set {tnt::arena::%arg-2%::max} to arg-3 parsed as number
 								send "{@prefix}&aMaximum players for Arena &3%arg-2% &ahas been set!"	
 							if arg 1 is "SetMapName":
-								set {tnt.arena.%arg-2%.map} to arg-3
+								set {tnt::arena::%arg-2%::map} to arg-3
 								send "{@prefix}&aMap Name for Arena &3%arg-2% &ahas been set!"								
 							if arg 1 is "SetMin":
-								set {tnt.arena.%arg-2%.min} to arg-3 parsed as number
+								set {tnt::arena::%arg-2%::min} to arg-3 parsed as number
 								send "{@prefix}&aMinimum players for Arena &3%arg-2% &ahas been set!"							
 							if arg 1 is "SetSpawn":
-								set {tnt.arena.%arg-2%.spawn} to location of player
+								set {tnt::arena::%arg-2%::spawn} to location of player
 								send "{@prefix}&aSpawn for Arena &3%arg-2% &ahas been set!"							
 						else:
 							send "{@prefix}&aThis arena not exists"											
 				if arg 1 is "setlobby":	
 					if player has permission "tnt.admin":
-						set {tnt.lobby} to location of player
+						set {tnt::lobby} to location of player
 						send "{@prefix}&aLobby set."										
 				if arg 1 is "resetstats":	
 					if player has permission "tnt.admin":		
@@ -172,22 +203,22 @@ command /tnttag [<text = help>] [<text>] [<text>]:
 						send "{@prefix}&cReseted Stats for &a%{_p}%"						
 				if arg 1 is "start":
 					if player has permission "tnt.admin":
-						#size of {tnt.arena.%{tnt.player::%uuid of player%.arena}%.ninjas::*} > 1
-						tnt_start({tnt.player::%uuid of player%.arena})
+						#size of {tnt::arena::%{tnt::player::%uuid of player%::arena}%::ninjas::*} > 1
+						tnt_start({tnt::player::%uuid of player%::arena})
 				if arg 1 is "reload":		
 					if player has permission "tnt.admin":
 						broadcast "{@prefix}&aReloading..."
 						make console execute command "sk reload %script%"
 				if arg 1 is "savearena":	
 					if player has permission "tnt.admin":		
-						if {tnt.arena.%arg-2%.state} is "created":
-							if {tnt.arena.%arg-2%.lobby} is set:						
-								if {tnt.arena.%arg-2%.spawn} is set:	
-									if {tnt.arena.%arg-2%.max} is set:	
-										if {tnt.arena.%arg-2%.min} is set:	
-											if {tnt.arena.%arg-2%.map} is set:	
-												set {tnt.arena.%arg-2%.state} to "ready"
-												add arg-2 to {tnt.arenas::*}
+						if {tnt::arena::%arg-2%::state} is "setup":
+							if {tnt::arena::%arg-2%::lobby} is set:						
+								if {tnt::arena::%arg-2%::spawn} is set:	
+									if {tnt::arena::%arg-2%::max} is set:	
+										if {tnt::arena::%arg-2%::min} is set:	
+											if {tnt::arena::%arg-2%::map} is set:	
+												set {tnt::arena::%arg-2%::state} to "ready"
+												add arg-2 to {tnt::arenas::*}
 												send "{@prefix}&aArena &c%arg-2% &ahas been saved."
 												tnt_resetarena(arg-2)
 											else:
@@ -204,108 +235,111 @@ command /tnttag [<text = help>] [<text>] [<text>]:
 							send "{@prefix}&aThis arena not exists"
 				if arg 1 is "deletearena":	
 					if player has permission "tnt.admin":		
-						if {tnt.arena.%arg-2%.state} is set:
+						if {tnt::arena::%arg-2%::state} is set:
 							tnt_resetarena(arg-2)
-							delete {tnt.arena.%arg-2%.lobby}
-							delete {tnt.arena.%arg-2%.seconds}
-							delete {tnt.arena.%arg-2%.minutes}
-							delete {tnt.arena.%arg-2%.status}
-							delete {tnt.arena.%arg-2%.min}
-							delete {tnt.arena.%arg-2%.max}
-							delete {tnt.arena.%arg-2%.ninjas::*}
-							delete {tnt.arena.%arg-2%.bad-ninjas::*}
-							delete {tnt.arena.%arg-2%.exploding-ninjas::*}						
-							delete {tnt.arena.%arg-2%.state} 
-							delete {tnt.arena.%arg-2%.sign}
-							delete {tnt.arena.%arg-2%.explode}	
-							loop 3 times:
-								delete {tnt.arena.%{_arena}%.summary.%loop-number%}
-							remove arg-2 from {tnt.arenas::*}
+							delete {tnt::arena::%arg-2%::*}
+							remove arg-2 from {tnt::arenas::*}
 							send "{@prefix}&aArena &c%arg-2% &ahas been deleted."
 						else:
 							send "{@prefix}&aThis arena not exists"
 
 on chat:
-	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
+	if {tnt::player::%uuid of player%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		cancel event		
-		send "{@chat-format}" to {tnt.arena.%{tnt.player::%uuid of player%.arena}%.ninjas::*} and {tnt.arena.%{tnt.player::%uuid of player%.arena}%.bad-ninjas::*}
+		send "{@chat-format}" to {tnt::arena::%{tnt::player::%uuid of player%::arena}%::ninjas::*} and {tnt::arena::%{tnt::player::%uuid of player%::arena}%::bad-ninjas::*}
 
 on drop:
-	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
+	if {tnt::player::%uuid of player%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		cancel event
 					
 on hunger bar change:	
-	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
+	if {tnt::player::%uuid of player%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		set player's hunger to 20
 		
 on damage of player:
-	if {tnt.player::%uuid of victim%.state} is "IN-GAME":
-		if {tnt.arena.%{tnt.player::%uuid of victim%.arena}%.status} is "STARTING" or "WAITING":
+	if {tnt::player::%uuid of victim%::state} is "IN-GAME":
+		if {tnt::arena::%{tnt::player::%uuid of victim%::arena}%::status} is "STARTING" or "WAITING":
 			cancel event
 			damage cause is void
-			teleport victim to {tnt.arena.%{tnt.player::%uuid of victim%.arena}%.lobby}
-		if {tnt.arena.%{tnt.player::%uuid of victim%.arena}%.status} is "INGAME":
+			teleport victim to {tnt::arena::%{tnt::player::%uuid of victim%::arena}%::lobby}
+		if {tnt::arena::%{tnt::player::%uuid of victim%::arena}%::status} is "IN-GAME":
 			heal victim
 			attacker is player:
-				if {tnt.player::%uuid of attacker%.has-tnt} is set:
-					tnt_set({tnt.player::%uuid of victim%.arena}, victim)
-					delete {tnt.player::%uuid of attacker%.has-tnt}
-					remove attacker from {tnt.arena.%{tnt.player::%uuid of victim%.arena}%.exploding-ninjas::*}
+				if {tnt::player::%uuid of attacker%::has-tnt} is set:
+					tnt_set({tnt::player::%uuid of victim%::arena}, victim)
+					delete {tnt::player::%uuid of attacker%::has-tnt}
+					remove attacker from {tnt::arena::%{tnt::player::%uuid of victim%::arena}%::exploding-ninjas::*}
 					clear attacker's inventory
-					milk attacker
+					loop ...attacker.getActivePotionEffects():
+						attacker.removePotionEffect(loop-value.getType())	
 					apply potion of speed 2 without any particles to attacker for 7 days
 					launch "CREEPER" firework at block above victim timed 0 coloured "GREEN"
 					send "{@get-tagged}" to victim
 					send "{@tag-player}" to attacker	
 			else:
 				cancel event
-	if {tnt.player::%uuid of victim%.state} is "IN-GAME-SPEC":
+	if {tnt::player::%uuid of victim%::state} is "IN-GAME-SPEC":
 		cancel event
-	if {tnt.player::%uuid of attacker%.state} is "IN-GAME-SPEC":
+	if {tnt::player::%uuid of attacker%::state} is "IN-GAME-SPEC":
 		cancel event
 		
 function tnt_check_win(arena: text):
-	size of {tnt.arena.%{_arena}%.ninjas::*} is 1
+	size of {tnt::arena::%{_arena}%::ninjas::*} is 1
 	tnt_set_arena_status({_arena}, "WAITING")
 	loop "1", "2" and "3":
-		if {tnt.arena.%{_arena}%.summary.%loop-value-1%} is set:	
-			set {_place.%loop-value%} to "%{tnt.arena.%{_arena}%.summary.%loop-value-1%}%"
+		if {tnt::arena::%{_arena}%::summary::%loop-value-1%} is set:	
+			set {_place.%loop-value%} to "%{tnt::arena::%{_arena}%::summary::%loop-value-1%}%"
 		else:	
 			set {_place.%loop-value%} to "&7Loading..."
-	loop {tnt.arena.%{_arena}%.ninjas::*}:
+	loop {tnt::arena::%{_arena}%::ninjas::*}:
 		set {_p} to loop-value-1
 	set {_place.1} to "%{_p}%"			
-	send message centered {@summary} to {tnt.arena.%{_arena}%.ninjas::*} and {tnt.arena.%{_arena}%.bad-ninjas::*}				
+	send message centered {@summary} to {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}				
 	set {_uuid} to uuid of {_p}
-	add 1 to {tnt.stats.wins::%{_uuid}%}
+	add 1 to {tnt::stats::wins::%{_uuid}%}
 	loop 10 times:
 		launch "BALL" firework at location of {_p} timed 1 coloured "RED" and "BLUE" AND "YELLOW" AND "GREEN"
 		wait a second	
 	tnt_resetarena({_arena})	
-					
-					
+						
 function tnt_remove(p: player, arena: text):
-	remove {_p} from {tnt.arena.%{_arena}%.ninjas::*}
-	if {tnt.arena.%{_arena}%.status} is "INGAME":	
+	remove {_p} from {tnt::arena::%{_arena}%::ninjas::*}
+	if {tnt::arena::%{_arena}%::status} is "IN-GAME":	
 		tnt_check_win({_arena})
 			
 on load:
-	delete {tnt.player::*}
+	delete {tnt::player::*}
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "{@prefix}&aLoading &ev.0.0.4&a..." to console
+	send "{@prefix}&aLoading &ev.0.0.5&a..." to console
 	broadcast "{@prefix}&aPlugin loaded!"
 	send " " to console
 	send "&7&l--------------------------------------------" to console
-	loop {tnt.arenas::*}:
-		delete {tnt.arena.%loop-value-1%.ninjas::*} and {tnt.arena.%loop-value-1%.bad-ninjas::*}
+	#Fixing old arenas...
+	if {tnt.arenas::*} is set:
+		broadcast "&aUpdating old arenas..."
+		loop {tnt.arenas::*}:
+			if {tnt.arena.%loop-value-11%.state} is set:
+				set {tnt::arena::%loop-value-1%::state} to {tnt.arena.%loop-value-1%.state}
+				set {tnt::arena::%loop-value-1%::lobby} to {tnt.arena.%loop-value-1%.lobby}					
+				set {tnt::arena::%loop-value-1%::spawn} to {tnt.arena.%loop-value-1%.spawn}
+				set {tnt::arena::%loop-value-1%::max} to {tnt.arena.%loop-value-1%.max}
+				set {tnt::arena::%loop-value-1%::min} to {tnt.arena.%loop-value-1%.min}	
+				set {tnt::arena::%loop-value-1%::map} to {tnt.arena.%loop-value-1%.map}	
+				add loop-value-1 to {tnt::arenas::*}
+				broadcast "&aUpdated &e%loop-value-1%"
+	delete {tnt.arenas::*}
+	#Fixing old arenas...
+	loop {tnt::arenas::*}:
+		delete {tnt::arena::%loop-value-1%::ninjas::*} and {tnt::arena::%loop-value-1%::bad-ninjas::*}
 		tnt_resetarena(loop-value)
-
+	set {tnt::cache::TitleManager} to Bukkit.getServer().getPluginManager().getPlugin("TitleManager")	
+				
 on unload:
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "{@prefix}&aDisabling &ev.0.0.4&a..." to console
-	send "{@prefix}&ev.0.0.4 &adisabled!" to console
+	send "{@prefix}&aDisabling &ev.0.0.5&a..." to console
+	send "{@prefix}&ev.0.0.5 &adisabled!" to console
 	send " " to console
 	send "&7&l--------------------------------------------" to console
 
@@ -313,57 +347,56 @@ function tnt_stats(do: text, p: player):
 	set {_uuid} to uuid of {_p}
 	{_do} is "check":
 		loop "loses" and "wins":
-			{tnt.stats.%loop-value%::%{_uuid}%} is not set
-			set {tnt.stats.%loop-value%::%{_uuid}%} to 0
+			{tnt::stats::%loop-value%::%{_uuid}%} is not set
+			set {tnt::stats::%loop-value%::%{_uuid}%} to 0
 	{_do} is "reset":
 		loop "loses" and "wins":
-			set {tnt.stats.%loop-value%::%{_uuid}%} to 0	
+			set {tnt::stats::%loop-value%::%{_uuid}%} to 0	
 	
 function tnt_leave(p: player):
 	set {_uuid} to uuid of {_p}
-	if {tnt.player::%{_uuid}%.state} is "IN-GAME" or "IN-GAME-SPEC":
-		set {_arena} to {tnt.player::%{_uuid}%.arena}
-		if {tnt.player::%{_uuid}%.state} is "IN-GAME":
-			tnt_remove({_p}, {tnt.player::%{_uuid}%.arena})
-			send "{@prefix}{@leave}" to {tnt.arena.%{_arena}%.ninjas::*}	
-			loop {tnt.arena.%{_arena}%.ninjas::*}:
-				size of {tnt.arena.%{_arena}%.ninjas::*} = 4 or 3 or 2 or 1:
-					set {_size} to size of {tnt.arena.%{_arena}%.ninjas::*}
-					set {tnt.arena.%{_arena}%.summary.%{_size}%} to loop-value-2		
-			tnt_check_win({tnt.player::%{_uuid}%.arena})	
-		if {tnt.player::%{_uuid}%.state} is "IN-GAME-SPEC":
-			remove {_p} from {tnt.arena.%{_arena}%.bad-ninjas::*}
+	if {tnt::player::%{_uuid}%::state} is "IN-GAME" or "IN-GAME-SPEC":
+		set {_arena} to {tnt::player::%{_uuid}%::arena}
+		if {tnt::player::%{_uuid}%::state} is "IN-GAME":
+			tnt_remove({_p}, {tnt::player::%{_uuid}%::arena})
+			send "{@prefix}{@leave}" to {tnt::arena::%{_arena}%::ninjas::*}	
+			loop {tnt::arena::%{_arena}%::ninjas::*}:
+				size of {tnt::arena::%{_arena}%::ninjas::*} = 4 or 3 or 2 or 1:
+					set {_size} to size of {tnt::arena::%{_arena}%::ninjas::*}
+					set {tnt::arena::%{_arena}%::summary::%{_size}%} to loop-value-2		
+			tnt_check_win({tnt::player::%{_uuid}%::arena})	
+		if {tnt::player::%{_uuid}%::state} is "IN-GAME-SPEC":
+			remove {_p} from {tnt::arena::%{_arena}%::bad-ninjas::*}
 		tnt_clear_player({_p})
-		tnt_deleteBoard({_p})
+		delete scoreboard of {_p}
 		tnt_update_sign({_arena})
 		loop "arena" and "state" and "has-tnt":
-			delete {tnt.player::%{_uuid}%.%loop-value%}				
-		teleport {_p} to {tnt.lobby}
+			delete {tnt::player::%{_uuid}%::%loop-value%}				
+		teleport {_p} to {tnt::lobby}
 	else:
 		send "{@prefix}{@not-in-game}" to {_p}
 		
 function tnt_join(p: player, arena: text):	
 	set {_uuid} to uuid of {_p}
-	if {tnt.player::%{_uuid}%.state} is not set:
-		if {tnt.arena.%{_arena}%.state} is "ready":
-			if {tnt.arena.%{_arena}%.status} is "WAITING" or "STARTING":
-				if size of {tnt.arena.%{_arena}%.ninjas::*} < {tnt.arena.%{_arena}%.max}:
+	if {tnt::player::%{_uuid}%::state} is not set:
+		if {tnt::arena::%{_arena}%::state} is "ready":
+			if {tnt::arena::%{_arena}%::status} is "WAITING" or "STARTING":
+				if size of {tnt::arena::%{_arena}%::ninjas::*} < {tnt::arena::%{_arena}%::max}:
 					tnt_clear_player({_p})
-					set {tnt.player::%{_uuid}%.state} to "IN-GAME"
-					set {tnt.player::%{_uuid}%.arena} to {_arena}
-					set {tnt.player::%{_uuid}%.kills} to 0
+					set {tnt::player::%{_uuid}%::state} to "IN-GAME"
+					set {tnt::player::%{_uuid}%::arena} to {_arena}
 					set slot {@leave-slot} of {_p} to {@leave-item} named "{@leave-name}"
-					add {_p} to {tnt.arena.%{_arena}%.ninjas::*}	
+					add {_p} to {tnt::arena::%{_arena}%::ninjas::*}	
 					tnt_update_sign({_arena})	
-					if size of {tnt.arena.%{_arena}%.ninjas::*} = 2:
+					if size of {tnt::arena::%{_arena}%::ninjas::*} = 2:
 						tnt_start_countdown({_arena})											
-					send "{@prefix}{@join}" to {tnt.arena.%{_arena}%.ninjas::*}
-					teleport {_p} to {tnt.arena.%{_arena}%.lobby}
+					send "{@prefix}{@join}" to {tnt::arena::%{_arena}%::ninjas::*}
+					teleport {_p} to {tnt::arena::%{_arena}%::lobby}
 					tnt_createBoard({_p}, "TNT-WAITING", 10)
 				else:
 					tnt_setspec({_p}, false)
-					add {_p} to {tnt.arena.%{_arena}%.bad-ninjas::*}
-					teleport {_p} to a random element out of {tnt.arena.%{_arena}%.bad-ninjas::*}
+					add {_p} to {tnt::arena::%{_arena}%::bad-ninjas::*}
+					teleport {_p} to a random element out of {tnt::arena::%{_arena}%::bad-ninjas::*}
 					send "{@prefix}{@game-full}" to {_p}
 			else:
 				send "{@prefix}{@game-running}" to {_p}
@@ -376,89 +409,81 @@ on join:
 	tnt_stats("check", player)
 		
 on right click:
-	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
+	if {tnt::player::%uuid of player%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		name of event-item is "{@leave-name}" or "{@teleporter-name}":
 			cancel event
 		name of event-item is "{@leave-name}":	
 			tnt_leave(player)
 		name of event-item is "{@teleporter-name}":
 			open chest inventory with 6 rows named "{@player-teleporter}" to player			
-			loop {tnt.arena.%{tnt.player::%uuid of player%.arena}%.ninjas::*}:
+			loop {tnt::arena::%{tnt::player::%uuid of player%::arena}%::ninjas::*}:
 				add 1 to {_slot}
-				format_slot(player's current inventory, {_slot}-1, 1, zombie skull, "&e%loop-value%", "")			
+				set {_target} to loop-value-1
+				make a gui slot {_slot}-1 of player with skull of loop-value named "&e%loop-value%" to run:
+					teleport player to {_target}	
 		
 on quit:
 	tnt_leave(player)
 
 on break:
-	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
+	if {tnt::player::%uuid of player%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		cancel event
 	
 on place:
-	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
+	if {tnt::player::%uuid of player%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		cancel event
 		
-on inventory click:
-	if display name of top inventory of player is "{@arena-list}":
+on inventory click:	
+	if {tnt::player::%uuid of player%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		cancel event
-		event-item is green clay
-		set {_arena} to line 1 of the lore of event-item 
-		tnt_join(player, last element of {_arena} split at "&8&l» &7ARENA: &e&l")		
-	if {tnt.player::%uuid of player%.state} is "IN-GAME" or "IN-GAME-SPEC":
-		cancel event
-	if {tnt.player::%uuid of player%.state} is "IN-GAME-SPEC":
-		display name of top inventory of player is "{@player-teleporter}"
-		set {_p} to uncolored name of event-item
-		replace all "&e" with "" in {_p}
-		teleport player to {_p} parsed as player
-			
+		
 function tnt_start_round(arena: text):
-	set {tnt.arena.%{_arena}%.explode} to 55
+	set {tnt::arena::%{_arena}%::explode} to 55
 	tnt_timer({_arena})
-	size of {tnt.arena.%{_arena}%.ninjas::*} > 4:
-		set {_total} to size of {tnt.arena.%{_arena}%.ninjas::*}
+	size of {tnt::arena::%{_arena}%::ninjas::*} > 4:
+		set {_total} to size of {tnt::arena::%{_arena}%::ninjas::*}
 		set {_r} to rounded {_total} * 20/100
-		set {_backup::*} to {tnt.arena.%{_arena}%.ninjas::*}
+		set {_backup::*} to {tnt::arena::%{_arena}%::ninjas::*}
 		loop {_r} times:
 			set {_p} to a random element out of {_backup::*}
 			remove {_p} from {_backup::*}
 			tnt_set({_arena}, {_p})
 	else:
-		tnt_set({_arena}, random element out of {tnt.arena.%{_arena}%.ninjas::*})
-	loop {tnt.arena.%{_arena}%.ninjas::*}:
-		if {tnt.player::%uuid of loop-value-1%.has-tnt} is set:
+		tnt_set({_arena}, random element out of {tnt::arena::%{_arena}%::ninjas::*})
+	loop {tnt::arena::%{_arena}%::ninjas::*}:
+		if {tnt::player::%uuid of loop-value-1%::has-tnt} is set:
 			set {_run-or-tag} to "{@tag}"
 		else:
 			set {_run-or-tag} to "{@run}"
 		send message centered {@start-round} to loop-value-1		
 			
 function tnt_timer(arena: text):
-	loop {tnt.arena.%{_arena}%.explode} times:
-		if {tnt.arena.%{_arena}%.status} is "INGAME":
-			remove 1 from {tnt.arena.%{_arena}%.explode}
-			{tnt.arena.%{_arena}%.explode} = 0:
-				loop {tnt.arena.%{_arena}%.exploding-ninjas::*}:
+	loop {tnt::arena::%{_arena}%::explode} times:
+		if {tnt::arena::%{_arena}%::status} is "IN-GAME":
+			remove 1 from {tnt::arena::%{_arena}%::explode}
+			{tnt::arena::%{_arena}%::explode} = 0:
+				loop {tnt::arena::%{_arena}%::exploding-ninjas::*}:
 					loop blocks in radius 3 of loop-value-2:
 						show large explosion at loop-value-3
 					play sound "ENTITY_GENERIC_EXPLODE" with volume 1 at loop-value-2
-					size of {tnt.arena.%{_arena}%.ninjas::*} = 4 or 3 or 2 or 1:
-						set {_size} to size of {tnt.arena.%{_arena}%.ninjas::*}
-						set {tnt.arena.%{_arena}%.summary.%{_size}%} to loop-value-2
-					remove loop-value-2 from {tnt.arena.%{_arena}%.ninjas::*}
-					remove loop-value-2 from {tnt.arena.%{_arena}%.exploding-ninjas::*}
-					add loop-value-2 to {tnt.arena.%{_arena}%.bad-ninjas::*}
+					size of {tnt::arena::%{_arena}%::ninjas::*} = 4 or 3 or 2 or 1:
+						set {_size} to size of {tnt::arena::%{_arena}%::ninjas::*}
+						set {tnt::arena::%{_arena}%::summary::%{_size}%} to loop-value-2
+					remove loop-value-2 from {tnt::arena::%{_arena}%::ninjas::*}
+					remove loop-value-2 from {tnt::arena::%{_arena}%::exploding-ninjas::*}
+					add loop-value-2 to {tnt::arena::%{_arena}%::bad-ninjas::*}
 					set {_p} to loop-value-2
-					send "{@death}" to {tnt.arena.%{_arena}%.ninjas::*} and {tnt.arena.%{_arena}%.bad-ninjas::*}
-					delete {tnt.player::%uuid of loop-value-2%.has-tnt}
-					add 1 to {tnt.stats.loses::%uuid of loop-value-2%}
+					send "{@death}" to {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}
+					delete {tnt::player::%uuid of loop-value-2%::has-tnt}
+					add 1 to {tnt::stats::loses::%uuid of loop-value-2%}
 					tnt_setspec(loop-value-2, true)
 					tnt_update_sign({_arena})
-					size of {tnt.arena.%{_arena}%.ninjas::*} = 1:
+					size of {tnt::arena::%{_arena}%::ninjas::*} = 1:
 						tnt_check_win({_arena})
 					else:
-						add 1 to {tnt.arena.%{_arena}%.round}
+						add 1 to {tnt::arena::%{_arena}%::round}
 						wait 5 seconds
-						if {tnt.arena.%{_arena}%.status} is "INGAME":
+						if {tnt::arena::%{_arena}%::status} is "IN-GAME":
 							tnt_start_round({_arena})
 		else:
 			stop
@@ -466,109 +491,111 @@ function tnt_timer(arena: text):
 
 function tnt_set(arena: text, p: player):	
 	set {_uuid} to uuid of {_p}
-	if {tnt.player::%{_uuid}%.has-tnt} is not set:
-		set {tnt.player::%{_uuid}%.has-tnt} to true
-		add {_p} to {tnt.arena.%{_arena}%.exploding-ninjas::*}
+	if {tnt::player::%{_uuid}%::has-tnt} is not set:
+		set {tnt::player::%{_uuid}%::has-tnt} to true
+		add {_p} to {tnt::arena::%{_arena}%::exploding-ninjas::*}
 		loop numbers between 0 and 8:
 			set slot loop-number of {_p} to tnt named "&cTNT"
 		set {_p}'s helmet to tnt
 		apply potion of speed 4 without any particles to {_p} for 7 days
-		send "{@pass-tnt}" to {tnt.arena.%{_arena}%.ninjas::*}
-		while {tnt.player::%{_uuid}%.has-tnt} is set:
+		send "{@pass-tnt}" to {tnt::arena::%{_arena}%::ninjas::*}
+		while {tnt::player::%{_uuid}%::has-tnt} is set:
 			show mob spawner flames at {_p}
 			wait a second
 
 function tnt_setspec(p: player, title: boolean):
 	tnt_clear_player({_p})
 	set {_uuid} to uuid of {_p}
-	set {tnt.player::%{_uuid}%.state} to "IN-GAME-SPEC"
+	set {tnt::player::%{_uuid}%::state} to "IN-GAME-SPEC"
 	set {_p}'s gamemode to adventure
 	set {_p}'s flight mode to true	
 	apply potion of invisibility without any particles to {_p} for 7 days
 	push {_p} upwards at speed 2
-	hide {_p} from all players
+	loop all players:
+		{_p}.hidePlayer(loop-value-1)
 	set slot {@teleporter-slot} of {_p} to {@teleporter-item} named "{@teleporter-name}"
 	set slot {@leave-slot} of {_p} to {@leave-item} named "{@leave-name}"
 	if {_title} is true:
-		send title "{@death-title}" with subtitle "{@death-subtitle}" to {_p} for 3 seconds
+		send title "{@death-title}" with subtitle "{@death-subtitle}" to {_p} with 10 fadein and 10 fadeout for 40
 				
 function tnt_start(arena: text):
-	set {tnt.arena.%{_arena}%.explode} to 55
-	set {tnt.arena.%{_arena}%.status} to "INGAME"	
-	set {tnt.arena.%{_arena}%.round} to 1
-	loop {tnt.arena.%{_arena}%.ninjas::*}:	
+	set {tnt::arena::%{_arena}%::explode} to 55
+	set {tnt::arena::%{_arena}%::status} to "IN-GAME"	
+	set {tnt::arena::%{_arena}%::round} to 1
+	loop {tnt::arena::%{_arena}%::ninjas::*}:	
 		tnt_clear_player(loop-value)
 		tnt_createBoard(loop-value, "TNT-GAME", 11)
 		apply blindness to loop-value for 1 second
 		apply potion of speed 2 without any particles to loop-value for 7 days		
-		teleport loop-value-1 to {tnt.arena.%{_arena}%.spawn}
+		teleport loop-value-1 to {tnt::arena::%{_arena}%::spawn}
 	wait a second
-	if {tnt.arena.%{_arena}%.status} is "INGAME":
+	if {tnt::arena::%{_arena}%::status} is "IN-GAME":
 		tnt_start_round({_arena})
 
 function tnt_update_sign(arena: text):
-	set line 1 of block at {tnt.arena.%{_arena}%.sign} to "{@line-1}"
-	set line 2 of block at {tnt.arena.%{_arena}%.sign} to "{@line-2}"
-	set line 3 of block at {tnt.arena.%{_arena}%.sign} to "{@line-3}"
-	set line 4 of block at {tnt.arena.%{_arena}%.sign} to "{@line-4}"	
+	set line 1 of block at {tnt::arena::%{_arena}%::sign} to "{@line-1}"
+	set line 2 of block at {tnt::arena::%{_arena}%::sign} to "{@line-2}"
+	set line 3 of block at {tnt::arena::%{_arena}%::sign} to "{@line-3}"
+	set line 4 of block at {tnt::arena::%{_arena}%::sign} to "{@line-4}"	
 
 function tnt_set_arena_status(arena: text, status: text):	
-	set {tnt.arena.%{_arena}%.status} to {_status}
+	set {tnt::arena::%{_arena}%::status} to {_status}
 	tnt_update_sign({_arena})
 
 function tnt_start_countdown(arena: text):
-	set {tnt.arena.%{_arena}%.status} to "STARTING"
-	loop {tnt.arena.%{_arena}%.seconds} times:
-		if {tnt.arena.%{_arena}%.status} is "STARTING" or "WAITING":
-			size of {tnt.arena.%{_arena}%.ninjas::*} >= {tnt.arena.%{_arena}%.min}:
+	set {tnt::arena::%{_arena}%::status} to "STARTING"
+	loop {tnt::arena::%{_arena}%::seconds} times:
+		if {tnt::arena::%{_arena}%::status} is "STARTING" or "WAITING":
+			size of {tnt::arena::%{_arena}%::ninjas::*} >= {tnt::arena::%{_arena}%::min}:
 				wait a second
-				remove 1 from {tnt.arena.%{_arena}%.seconds}	
-				if {tnt.arena.%{_arena}%.seconds} = 1 or 2 or 3 or 4 or 5 or 10:
-					send "{@prefix}{@starting}" to {tnt.arena.%{_arena}%.ninjas::*}
-					{tnt.arena.%{_arena}%.seconds} > 1:
+				remove 1 from {tnt::arena::%{_arena}%::seconds}	
+				if {tnt::arena::%{_arena}%::seconds} = 1 or 2 or 3 or 4 or 5 or 10:
+					send "{@prefix}{@starting}" to {tnt::arena::%{_arena}%::ninjas::*}
+					{tnt::arena::%{_arena}%::seconds} > 1:
 						set {_time} to "{@seconds}"
 					else:
 						set {_time} to "{@second}"
-					send title "{@game-start-title}" with subtitle "{@game-start-subtitle}" to {tnt.arena.%{_arena}%.ninjas::*} for a second
-				if {tnt.arena.%{_arena}%.seconds} = 1:
-					size of {tnt.arena.%{_arena}%.ninjas::*} >= {tnt.arena.%{_arena}%.min}:
+					send title "{@game-start-title}" with subtitle "{@game-start-subtitle}" to {tnt::arena::%{_arena}%::ninjas::*} with 0 fadein and 0 fadeout for 20
+				if {tnt::arena::%{_arena}%::seconds} = 1:
+					size of {tnt::arena::%{_arena}%::ninjas::*} >= {tnt::arena::%{_arena}%::min}:
 						tnt_start({_arena})
 			else:
 				tnt_set_arena_status({_arena}, "WAITING")
-				set {tnt.arena.%{_arena}%.seconds} to {@lobby-time}
+				set {tnt::arena::%{_arena}%::seconds} to {@lobby-time}
 				stop
 
 on sign change:
 	line 1 is "[TNT]" or "[TNTTAG]" or "[TNT-TAG]"
 	line 2 is "join"
 	player have permission "tnt.admin"
-	if {tnt.arena.%line 3%.state} is set:
-		set {tnt.arena.%line 3%.sign} to location of event-block
+	if {tnt::arena::%line 3%::state} is set:
+		set {tnt::arena::%line 3%::sign} to location of event-block
 		tnt_update_sign(line 3)
 	else:
 		send "{@prefix}{@not-exist}"	
 
 on right click on sign:
-	loop {tnt.arenas::*}:
-		if {tnt.arena.%loop-value-1%.sign} is location of event-block:	
+	loop {tnt::arenas::*}:
+		if {tnt::arena::%loop-value-1%::sign} is location of event-block:	
 			tnt_join(player, loop-value-1)	
 
 function tnt_resetarena(arena: text):
-	loop {tnt.arena.%{_arena}%.ninjas::*} and {tnt.arena.%{_arena}%.bad-ninjas::*}:
-		if {tnt.player::%uuid of loop-value%.state} is "IN-GAME-SPEC":
-			reveal loop-value to all players
+	loop {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}:
+		if {tnt::player::%uuid of loop-value%::state} is "IN-GAME-SPEC":
+			loop all players:
+				{_p}.showPlayer(loop-value-2)
 		loop "arena" and "state" and "has-tnt":
-			delete {tnt.player::%uuid of loop-value-1%.%loop-value-2%}	
+			delete {tnt::player::%uuid of loop-value-1%::%loop-value-2%}	
 		tnt_clear_player(loop-value-1)
-		tnt_deleteBoard(loop-value-1)
+		delete scoreboard of loop-value-1
 		set loop-value-1's gamemode to spectator
 		push loop-value-1 upwards at speed 0.5
-		teleport loop-value-1 to {tnt.lobby}
+		teleport loop-value-1 to {tnt::lobby}
 		set loop-value-1's gamemode to survival
 	loop 3 times:
-		delete {tnt.arena.%{_arena}%.summary.%loop-number%}		
-	delete {tnt.arena.%{_arena}%.ninjas::*} and {tnt.arena.%{_arena}%.bad-ninjas::*} and {tnt.arena.%{_arena}%.exploding-ninjas::*}					
-	set {tnt.arena.%{_arena}%.seconds} to {@lobby-time}
+		delete {tnt::arena::%{_arena}%::summary::%loop-number%}		
+	delete {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*} and {tnt::arena::%{_arena}%::exploding-ninjas::*}					
+	set {tnt::arena::%{_arena}%::seconds} to {@lobby-time}
 	tnt_set_arena_status({_arena}, "WAITING")
 	tnt_update_sign({_arena})
 							
@@ -580,37 +607,24 @@ function tnt_clear_player(p: player):
 	clear {_p}'s inventory
 	set {_p}'s gamemode to survival
 	set {_p}'s flight mode to false		
-	milk {_p}	
+	loop ...{_p}.getActivePotionEffects():
+		{_p}.removePotionEffect(loop-value.getType())		
 	
-function tnt_deleteBoard(p: player):
-	loop "TNT-GAME" and "TNT-WAITING":
-		if stylish scoreboard "%loop-value-1%-%{_p}%" exists:
-			loop 15 times:
-				delete the id based score "%{_p}%Slot%loop-number-2%" in stylish scoreboard "%loop-value-1%-%{_p}%"
-			delete stylish scoreboard "%loop-value-1%-%{_p}%"
-			
-function tnt_setSlot(p: player, board: text, slot: integer, t: text):
-    add "&a", "&b", "&c", "&d", "&e", "&1", "&2", "&3", "&4", "&5", "&6", "&7", "&8", "&9" and "&f" to {_d::*}
-    if {_slot} is between 1 and 15:
-        set text of id "%{_p}%Slot%{_slot}%" to "%{_d::%{_slot}%}%%{_t}%"  
+function tnt_setSlot(p: player, slot: integer, t: text):
+	add "&a", "&b", "&c", "&d", "&e", "&1", "&2", "&3", "&4", "&5", "&6", "&7", "&8", "&9" and "&f" to {_d::*}
+	if {_slot} is between 1 and 15: 
+		set scoreboard line {_slot} of {_p} to "%{_d::%{_slot}%}%%{_t}%"
 
 function tnt_createBoard(p: player, t: text, size: integer = 15):
 	set {_uuid} to uuid of {_p}
-	tnt_deleteBoard({_p})
-	add "&a", "&b", "&c", "&d", "&e", "&1", "&2", "&3", "&4", "&5", "&6", "&7", "&8", "&9" and "&f" to {_d::*}
-	if stylish scoreboard "%{_t}%-%{_p}%" does not exist:
-		create new stylish scoreboard named "%{_t}%-%{_p}%"
-		loop {_size} times:
-			create a new id based score "%{_p}%Slot%loop-number%" with text "%{_d::%loop-number%}%" slot loop-number for stylish scoreboard "%{_t}%-%{_p}%"
-		wait a tick
-		set stylish scoreboard of {_p} to "%{_t}%-%{_p}%"
+	create scoreboard for {_p}
+	set scoreboard title of {_p} to "&e&lTNT TAG"
 	if {_t} is "TNT-GAME":
-		set title of stylish scoreboard "TNT-GAME-%{_p}%" to "&e&lTNT TAG"
-		while {tnt.arena.%{tnt.player::%{_uuid}%.arena}%.status} is "INGAME":
-			if {tnt.player::%{_uuid}%.has-tnt} is set:
+		while {tnt::arena::%{tnt::player::%{_uuid}%::arena}%::status} is "IN-GAME":
+			if {tnt::player::%{_uuid}%::has-tnt} is set:
 				set {_target} to "{@target-tag}"
-				loop {tnt.arena.%{tnt.player::%{_uuid}%.arena}%.ninjas::*}:
-					if {tnt.player::%uuid of loop-value%.has-tnt} is not set:
+				loop {tnt::arena::%{tnt::player::%{_uuid}%::arena}%::ninjas::*}:
+					if {tnt::player::%uuid of loop-value%::has-tnt} is not set:
 						set {_closest} to distance between loop-value-1 and {_p}
 						distance between loop-value-1 and {_p} < {_closest}:
 							set {_closest} to distance between loop-value-1 and {_p}
@@ -618,36 +632,29 @@ function tnt_createBoard(p: player, t: text, size: integer = 15):
 			else:
 				set {_target} to "{@target-run}"
 				send action bar "{@action-bar-run}" to {_p}
-			if stylish scoreboard "TNT-GAME-%{_p}%" exists:	
-				tnt_setSlot({_p}, "TNT-GAME", 11, "&7%now%")		
-				tnt_setSlot({_p}, "TNT-GAME", 10, "")					
-				tnt_setSlot({_p}, "TNT-GAME", 9, "&7Round ##%{tnt.arena.%{tnt.player::%{_uuid}%.arena}%.round}%")					
-				tnt_setSlot({_p}, "TNT-GAME", 8, "")				
-				tnt_setSlot({_p}, "TNT-GAME", 7, "&eExplosion In &c%{tnt.arena.%{tnt.player::%{_uuid}%.arena}%.explode}%&cs")	
-				tnt_setSlot({_p}, "TNT-GAME", 6, "")				
-				tnt_setSlot({_p}, "TNT-GAME", 5, "&fGoal: %{_target}%")					
-				tnt_setSlot({_p}, "TNT-GAME", 4, "")		
-				tnt_setSlot({_p}, "TNT-GAME", 3, "&fAlive: &a%size of {tnt.arena.%{tnt.player::%{_uuid}%.arena}%.ninjas::*}% &aPlayers")					
-				tnt_setSlot({_p}, "TNT-GAME", 2, "")										
-				tnt_setSlot({_p}, "TNT-GAME", 1, "{@website}")				
-			else:
-				stop				
+			tnt_setSlot({_p}, 11, "&7%now%")		
+			tnt_setSlot({_p}, 10, "")					
+			tnt_setSlot({_p}, 9, "&7Round ##%{tnt::arena::%{tnt::player::%{_uuid}%::arena}%::round}%")					
+			tnt_setSlot({_p}, 8, "")				
+			tnt_setSlot({_p}, 7, "&eExplosion In &c%{tnt::arena::%{tnt::player::%{_uuid}%::arena}%::explode}%&cs")	
+			tnt_setSlot({_p}, 6, "")				
+			tnt_setSlot({_p}, 5, "&fGoal: %{_target}%")					
+			tnt_setSlot({_p}, 4, "")		
+			tnt_setSlot({_p}, 3, "&fAlive: &a%size of {tnt::arena::%{tnt::player::%{_uuid}%::arena}%::ninjas::*}% &aPlayers")					
+			tnt_setSlot({_p}, 2, "")										
+			tnt_setSlot({_p}, 1, "{@website}")							
 			wait a second
 	if {_t} is "TNT-WAITING":
-		set title of stylish scoreboard "TNT-WAITING-%{_p}%" to "&e&lTNT TAG"
-		while {tnt.arena.%{tnt.player::%{_uuid}%.arena}%.status} is "WAITING" or "STARTING":	
-			if stylish scoreboard "TNT-WAITING-%{_p}%" exists:	
-				tnt_setSlot({_p}, "TNT-WAITING", 10, "&7%now%")
-				tnt_setSlot({_p}, "TNT-WAITING", 9, "")		
-				tnt_setSlot({_p}, "TNT-WAITING", 8, "&fMap: &a%{tnt.arena.%{tnt.player::%{_uuid}%.arena}%.map}%")		
-				tnt_setSlot({_p}, "TNT-WAITING", 7, "&fPlayers: &a%size of {tnt.arena.%{tnt.player::%{_uuid}%.arena}%.ninjas::*}%/%{tnt.arena.%{tnt.player::%{_uuid}%.arena}%.max}%")	
-				tnt_setSlot({_p}, "TNT-WAITING", 6, "")				
-				tnt_setSlot({_p}, "TNT-WAITING", 5, "&fStarting in: &a%{tnt.arena.%{tnt.player::%{_uuid}%.arena}%.seconds}%s")				
-				tnt_setSlot({_p}, "TNT-WAITING", 4, "")						
-				tnt_setSlot({_p}, "TNT-WAITING", 3, "&fArena: &a%{tnt.player::%{_uuid}%.arena}%")					
-				tnt_setSlot({_p}, "TNT-WAITING", 2, "")	
-				tnt_setSlot({_p}, "TNT-WAITING", 1, "{@website}")				
-			else:
-				stop			
+		while {tnt::arena::%{tnt::player::%{_uuid}%::arena}%::status} is "WAITING" or "STARTING":	
+			tnt_setSlot({_p}, 10, "&7%now%")
+			tnt_setSlot({_p}, 9, "")		
+			tnt_setSlot({_p}, 8, "&fMap: &a%{tnt::arena::%{tnt::player::%{_uuid}%::arena}%::map}%")		
+			tnt_setSlot({_p}, 7, "&fPlayers: &a%size of {tnt::arena::%{tnt::player::%{_uuid}%::arena}%::ninjas::*}%/%{tnt::arena::%{tnt::player::%{_uuid}%::arena}%::max}%")	
+			tnt_setSlot({_p}, 6, "")				
+			tnt_setSlot({_p}, 5, "&fStarting in: &a%{tnt::arena::%{tnt::player::%{_uuid}%::arena}%::seconds}%s")				
+			tnt_setSlot({_p}, 4, "")						
+			tnt_setSlot({_p}, 3, "&fArena: &a%{tnt::player::%{_uuid}%::arena}%")					
+			tnt_setSlot({_p}, 2, "")	
+			tnt_setSlot({_p}, 1, "{@website}")						
 			wait a second		
 				
