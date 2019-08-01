@@ -583,7 +583,7 @@ function tnt_resetarena(arena: text):
 	loop {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}:
 		if {tnt::player::%uuid of loop-value%::state} is "IN-GAME-SPEC":
 			loop all players:
-				{_p}.showPlayer(loop-value-2)
+				loop-player.showPlayer(loop-value-2)
 		loop "arena" and "state" and "has-tnt":
 			delete {tnt::player::%uuid of loop-value-1%::%loop-value-2%}	
 		tnt_clear_player(loop-value-1)
