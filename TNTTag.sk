@@ -43,7 +43,7 @@ options:
 	teleporter-name: &aPlayer Teleporter
 
 	#MENUS
-	arena-list: &8&l» &e&nTNT Tag - ARENAS
+	arena-list: &8&l» &e&nTNT Tag - Arenas
 	player-teleporter: &8&l» &7Player Teleporter
 
 	#TITLES
@@ -327,7 +327,7 @@ on load:
 				set {tnt::arena::%loop-value-1%::min} to {tnt.arena.%loop-value-1%.min}	
 				set {tnt::arena::%loop-value-1%::map} to {tnt.arena.%loop-value-1%.map}	
 				add loop-value-1 to {tnt::arenas::*}
-				broadcast "&aUpdated &e%loop-value-1%"
+				broadcast "&aUpdated arena &e%loop-value-1%"
 	delete {tnt.arenas::*}
 	#Fixing old arenas...
 	loop {tnt::arenas::*}:
@@ -415,12 +415,13 @@ on right click:
 		name of event-item is "{@leave-name}":	
 			tnt_leave(player)
 		name of event-item is "{@teleporter-name}":
-			open chest inventory with 6 rows named "{@player-teleporter}" to player			
+			open chest inventory with 6 rows named "{@player-teleporter}" to player	
+			set {_slot} to 0
 			loop {tnt::arena::%{tnt::player::%uuid of player%::arena}%::ninjas::*}:
-				add 1 to {_slot}
 				set {_target} to loop-value-1
 				make a gui slot {_slot}-1 of player with skull of loop-value named "&e%loop-value%" to run:
-					teleport player to {_target}	
+					teleport player to {_target}
+				add 1 to {_slot}			
 		
 on quit:
 	tnt_leave(player)
@@ -511,8 +512,7 @@ function tnt_setspec(p: player, title: boolean):
 	set {_p}'s flight mode to true	
 	apply potion of invisibility without any particles to {_p} for 7 days
 	push {_p} upwards at speed 2
-	loop all players:
-		{_p}.hidePlayer(loop-value-1)
+	apply potion of invisibility without any particles to {_p} for 7 days	
 	set slot {@teleporter-slot} of {_p} to {@teleporter-item} named "{@teleporter-name}"
 	set slot {@leave-slot} of {_p} to {@leave-item} named "{@leave-name}"
 	if {_title} is true:
@@ -581,9 +581,6 @@ on right click on sign:
 
 function tnt_resetarena(arena: text):
 	loop {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}:
-		if {tnt::player::%uuid of loop-value%::state} is "IN-GAME-SPEC":
-			loop all players:
-				loop-player.showPlayer(loop-value-2)
 		loop "arena" and "state" and "has-tnt":
 			delete {tnt::player::%uuid of loop-value-1%::%loop-value-2%}	
 		tnt_clear_player(loop-value-1)
