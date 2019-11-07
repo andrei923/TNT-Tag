@@ -1,6 +1,7 @@
 options:
 
 	#MESSAGES
+	#Test
 	prefix: &6&lTNT TAG &8&l» &7
 	
 	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
