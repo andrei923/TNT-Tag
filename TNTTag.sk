@@ -2,6 +2,7 @@ options:
 
 	#MESSAGES
 	prefix: &6&lTNT TAG &8&l» &7
+	version: v.0.0.6b
 	
 	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
 	join: &a%{_p}'s display name% &ehas joined to the game &e(&b%size of {tnt::arena::%{_arena}%::ninjas::*}%&e/&b%{tnt::arena::%{_arena}%::max}%&e).
@@ -313,7 +314,7 @@ on load:
 	delete {tnt::player::*}
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "{@prefix}&aLoading &ev.0.0.5b&a..." to console
+	send "{@prefix}&aLoading &e{@version}&a..." to console
 	broadcast "{@prefix}&aPlugin loaded!"
 	send " " to console
 	send "&7&l--------------------------------------------" to console
@@ -341,8 +342,8 @@ on load:
 on unload:
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "{@prefix}&aDisabling &ev.0.0.5b&a..." to console
-	send "{@prefix}&ev.0.0.5b &adisabled!" to console
+	send "{@prefix}&aDisabling &e{@version}&a..." to console
+	send "{@prefix}&e{@version} &adisabled!" to console
 	send " " to console
 	send "&7&l--------------------------------------------" to console
 
