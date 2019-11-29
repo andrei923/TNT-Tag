@@ -2,7 +2,7 @@ options:
 
 	#MESSAGES
 	prefix: &6&lTNT TAG &8&l» &7
-	version: v.0.0.7
+	version: v.0.0.7b
 	
 	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
 	join: &a%{_p}'s display name% &ehas joined to the game &e(&b%size of {tnt::arena::%{_arena}%::ninjas::*}%&e/&b%{tnt::arena::%{_arena}%::max}%&e).
@@ -631,29 +631,29 @@ function tnt_createBoard(p: player, t: text, size: integer = 15):
 			else:
 				set {_target} to "{@target-run}"
 				send action bar "{@action-bar-run}" to {_p}
-			tnt_setSlot({_p}, 11, "&7%now%")		
-			tnt_setSlot({_p}, 10, "")					
-			tnt_setSlot({_p}, 9, "&7Round ##%{tnt::arena::%{tnt::player::%{_p}%::arena}%::round}%")					
-			tnt_setSlot({_p}, 8, "")				
-			tnt_setSlot({_p}, 7, "&eExplosion In &c%{tnt::arena::%{tnt::player::%{_p}%::arena}%::explode}%&cs")	
+			tnt_setSlot({_p}, 1, "&7%now%")		
+			tnt_setSlot({_p}, 2, "")					
+			tnt_setSlot({_p}, 3, "&7Round ##%{tnt::arena::%{tnt::player::%{_p}%::arena}%::round}%")					
+			tnt_setSlot({_p}, 4, "")				
+			tnt_setSlot({_p}, 5, "&eExplosion In &c%{tnt::arena::%{tnt::player::%{_p}%::arena}%::explode}%&cs")	
 			tnt_setSlot({_p}, 6, "")				
-			tnt_setSlot({_p}, 5, "&fGoal: %{_target}%")					
-			tnt_setSlot({_p}, 4, "")		
-			tnt_setSlot({_p}, 3, "&fAlive: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}% &aPlayers")					
-			tnt_setSlot({_p}, 2, "")										
-			tnt_setSlot({_p}, 1, "{@website}")							
+			tnt_setSlot({_p}, 7, "&fGoal: %{_target}%")					
+			tnt_setSlot({_p}, 8, "")		
+			tnt_setSlot({_p}, 9, "&fAlive: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}% &aPlayers")					
+			tnt_setSlot({_p}, 10, "")										
+			tnt_setSlot({_p}, 11, "{@website}")							
 			wait a second
 	if {_t} is "TNT-WAITING":
 		while {tnt::arena::%{tnt::player::%{_p}%::arena}%::status} is "WAITING" or "STARTING":	
-			tnt_setSlot({_p}, 10, "&7%now%")
-			tnt_setSlot({_p}, 9, "")		
-			tnt_setSlot({_p}, 8, "&fMap: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::map}%")		
-			tnt_setSlot({_p}, 7, "&fPlayers: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}%/%{tnt::arena::%{tnt::player::%{_p}%::arena}%::max}%")	
-			tnt_setSlot({_p}, 6, "")				
-			tnt_setSlot({_p}, 5, "&fStarting in: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::seconds}%s")				
-			tnt_setSlot({_p}, 4, "")						
-			tnt_setSlot({_p}, 3, "&fArena: &a%{tnt::player::%{_p}%::arena}%")					
-			tnt_setSlot({_p}, 2, "")	
-			tnt_setSlot({_p}, 1, "{@website}")						
+			tnt_setSlot({_p}, 1, "&7%now%")
+			tnt_setSlot({_p}, 2, "")		
+			tnt_setSlot({_p}, 3, "&fMap: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::map}%")		
+			tnt_setSlot({_p}, 4, "&fPlayers: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}%/%{tnt::arena::%{tnt::player::%{_p}%::arena}%::max}%")	
+			tnt_setSlot({_p}, 5, "")				
+			tnt_setSlot({_p}, 6, "&fStarting in: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::seconds}%s")				
+			tnt_setSlot({_p}, 7, "")						
+			tnt_setSlot({_p}, 8, "&fArena: &a%{tnt::player::%{_p}%::arena}%")					
+			tnt_setSlot({_p}, 9, "")	
+			tnt_setSlot({_p}, 10, "{@website}")						
 			wait a second		
 				
