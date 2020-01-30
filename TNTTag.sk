@@ -340,6 +340,30 @@ on load:
 	set {tnt::cache::TitleManager} to Bukkit.getServer().getPluginManager().getPlugin("TitleManager")	
 			
 
+function tnt_inventory_manager(p: player, type: text):
+	set {_int} to 0
+	if {_type} = "save":
+		{tnt::player::%{_p}%::inventory::*} is set:
+			stop
+		loop 36 times:
+			if slot {_int} of {_p}'s inventory != air:
+				set {tnt::player::%{_p}%::inventory::%{_int}%} to slot {_int} of {_p}'s inventory
+			add 1 to {_int}
+		set {tnt::player::%{_p}%::inventory::Helmet} to {_p}'s helmet
+		set {tnt::player::%{_p}%::inventory::Chestplate} to {_p}'s chestplate
+		set {tnt::player::%{_p}%::inventory::Leggings} to {_p}'s legging
+		set {tnt::player::%{_p}%::inventory::Boots} to {_p}'s boots	
+	if {_type} = "restore":
+		loop 36 times:
+			{tnt::player::%{_p}%::inventory::%{_int}%} is set:
+				set slot {_int} of {_p}'s inventory to {tnt::player::%{_p}%::inventory::%{_int}%}
+			add 1 to {_int}
+		set {_p}'s helmet to {tnt::player::%{_p}%::inventory::Helmet}
+		set {_p}'s chestplate to {tnt::player::%{_p}%::inventory::Chestplate}
+		set {_p}'s legging to {tnt::player::%{_p}%::inventory::Leggings}
+		set {_p}'s boots to {tnt::player::%{_p}%::inventory::Boots}
+		delete {tnt::player::%{_p}%::inventory::*}
+
 on unload:
 	send "&7&l--------------------------------------------" to console
 	send " " to console
@@ -374,9 +398,9 @@ function tnt_leave(p: player):
 		tnt_clear_player({_p})
 		delete scoreboard of {_p}
 		tnt_update_sign({_arena})
-		loop "arena" and "state" and "has-tnt":
-			delete {tnt::player::%{_p}%::%loop-value%}				
+		delete {tnt::player::%{_p}%::*}				
 		teleport {_p} to {tnt::lobby}
+		tnt_inventory_manager({_p}, "restore")
 	else:
 		send "{@prefix}{@not-in-game}" to {_p}
 		
@@ -385,9 +409,10 @@ function tnt_join(p: player, arena: text):
 		if {tnt::arena::%{_arena}%::state} is "ready":
 			if {tnt::arena::%{_arena}%::status} is "WAITING" or "STARTING":
 				if size of {tnt::arena::%{_arena}%::ninjas::*} < {tnt::arena::%{_arena}%::max}:
-					tnt_clear_player({_p})
+					tnt_inventory_manager({_p}, "save")
 					set {tnt::player::%{_p}%::state} to "IN-GAME"
 					set {tnt::player::%{_p}%::arena} to {_arena}
+					tnt_clear_player({_p})
 					set slot {@leave-slot} of {_p} to {@leave-item} named "{@leave-name}"
 					add {_p} to {tnt::arena::%{_arena}%::ninjas::*}	
 					tnt_update_sign({_arena})	
@@ -592,6 +617,7 @@ function tnt_resetarena(arena: text):
 		push loop-value-1 upwards at speed 0.5
 		teleport loop-value-1 to {tnt::lobby}
 		set loop-value-1's gamemode to survival
+		tnt_inventory_manager(loop-value-1, "restore")
 	loop 3 times:
 		delete {tnt::arena::%{_arena}%::summary::%loop-number%}		
 	delete {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*} and {tnt::arena::%{_arena}%::exploding-ninjas::*}					
