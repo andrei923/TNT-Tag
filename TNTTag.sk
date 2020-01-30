@@ -2,7 +2,7 @@ options:
 
 	#MESSAGES
 	prefix: &6&lTNT TAG &8&l» &7
-	version: v.0.0.7b
+	version: v.0.0.8
 	
 	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
 	join: &a%{_p}'s display name% &ehas joined to the game &e(&b%size of {tnt::arena::%{_arena}%::ninjas::*}%&e/&b%{tnt::arena::%{_arena}%::max}%&e).
