@@ -2,7 +2,7 @@ options:
 
 	#MESSAGES
 	prefix: &6&lTNT TAG &8&l» &7
-	version: v.0.0.8
+	version: v.0.0.9
 	
 	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
 	join: &a%{_p}'s display name% &ehas joined to the game &e(&b%size of {tnt::arena::%{_arena}%::ninjas::*}%&e/&b%{tnt::arena::%{_arena}%::max}%&e).
@@ -59,7 +59,13 @@ options:
 	line-1: &8» &7Arena: &b%{_arena}% &8«
 	line-2: &8» &a%{tnt::arena::%{_arena}%::status}% &8«
 	line-3: &8» &7Playing &3%size of {tnt::arena::%{_arena}%::ninjas::*}%&7/&3%{tnt::arena::%{_arena}%::max}% &8«
-	line-4:	&e	 
+	line-4:	&e	
+
+	#Commands
+	#Used %{_p}% for player
+	win-cmd: disabled	
+	death-cmd: disabled
+
 
 
 
@@ -298,7 +304,8 @@ function tnt_check_win(arena: text):
 	loop {tnt::arena::%{_arena}%::ninjas::*}:
 		set {_p} to loop-value-1
 	set {_place.1} to "%{_p}%"			
-	send message centered {@summary} to {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}				
+	send message centered {@summary} to {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}			
+	make console execute command "{@win-cmd}"	
 	set {_uuid} to uuid of {_p}
 	add 1 to {tnt::stats::wins::%{_uuid}%}
 	loop 10 times:
@@ -503,6 +510,7 @@ function tnt_timer(arena: text):
 					remove loop-value-2 from {tnt::arena::%{_arena}%::exploding-ninjas::*}
 					add loop-value-2 to {tnt::arena::%{_arena}%::bad-ninjas::*}
 					set {_p} to loop-value-2
+					make console execute command "{@death-cmd}"
 					send "{@death}" to {tnt::arena::%{_arena}%::ninjas::*} and {tnt::arena::%{_arena}%::bad-ninjas::*}
 					delete {tnt::player::%loop-value-2%::has-tnt}
 					add 1 to {tnt::stats::loses::%uuid of loop-value-2%}
