@@ -2,7 +2,7 @@ options:
 
 	#MESSAGES
 	prefix: &6&lTNT TAG &8&l» &7
-	version: v.0.0.9
+	version: v.0.1.0
 	
 	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
 	join: &a%{_p}'s display name% &ehas joined to the game &e(&b%size of {tnt::arena::%{_arena}%::ninjas::*}%&e/&b%{tnt::arena::%{_arena}%::max}%&e).
@@ -74,19 +74,12 @@ options:
 #
 import:			
 	org.bukkit.Bukkit
+	org.bukkit.Color
+	org.bukkit.FireworkEffect
+	org.bukkit.entity.Firework
 	fr.mrmicky.fastparticle.FastParticle
 	fr.mrmicky.fastparticle.ParticleType	
-
-local effect [leaf] send title %string% with subtitle %string% to %players% with %number% fadein and %number% fadeout for %number%:		
-	trigger:
-		loop exprs-3:
-			{tnt::cache::TitleManager}.sendTitle(loop-value-1, expr-1, expr-4, expr-5 and expr-6)
-			{tnt::cache::TitleManager}.sendSubtitle(loop-value-1 and expr-2)
-
-local effect [leaf] send action[ ]bar %string% to %players%:		
-	trigger:
-		loop exprs-2:
-			{tnt::cache::TitleManager}.sendActionbar(loop-value-1 and expr-1)
+	org.bukkit.inventory.meta.FireworkMeta	
 			
 local effect create scoreboard for %player%:	
 	trigger:
@@ -105,7 +98,6 @@ local effect set scoreboard title of %player% to %string%:
 local effect set scoreboard line %number% of %player% to %string%:	
 	trigger:
 		{tnt::cache::TitleManager}.setScoreboardValue(expr-2, expr-1 and expr-3)
-
 
 command tnttag [<text = help>] [<text>] [<text>]:
 	aliases: tnt
@@ -283,7 +275,7 @@ on damage of player:
 					loop ...attacker.getActivePotionEffects():
 						attacker.removePotionEffect(loop-value.getType())	
 					apply potion of speed 2 without any particles to attacker for 7 days
-					launch "CREEPER" firework at block above victim timed 0 coloured "GREEN"
+					leafSpawnFirework(location of block above victim, "MultiColor")
 					send "{@get-tagged}" to victim
 					send "{@tag-player}" to attacker	
 			else:
@@ -309,7 +301,7 @@ function tnt_check_win(arena: text):
 	set {_uuid} to uuid of {_p}
 	add 1 to {tnt::stats::wins::%{_uuid}%}
 	loop 10 times:
-		launch "BALL" firework at location of {_p} timed 1 coloured "RED" and "BLUE" AND "YELLOW" AND "GREEN"
+		leafSpawnFirework(location of {_p}, "MultiColor")
 		wait a second	
 	tnt_resetarena({_arena})	
 						
@@ -526,6 +518,31 @@ function tnt_timer(arena: text):
 		else:
 			stop
 		wait a second	
+
+function leafSpawnFirework(loc: Location, color: string = "Random", power: number = 0):
+	if {_color} is "Random" or "MultiColor":
+		loop "BLACK", "BLUE", "GRAY", "GREEN", "ORANGE", "PURPLE", "RED", "WHITE" and "YELLOW":
+			if Color.."%loop-value-1%" is set:
+				add loop-value-1 to {_colors::*}		
+		if {_color} is "MultiColor":	
+			loop 3 times:		
+				set {_r} to random element out of {_colors::*}	
+				remove {_r} from {_colors::*}
+				add {_r} to {_finalColors::*} 
+		else:
+			set {_finalColors::*} to random element out of {_colors::*}	
+		set {_color} to random element out of {_finalColors::*}
+	spawn an Firework at {_loc}
+	set {_firework} to spawned Firework
+	set {_fireworkMeta} to {_firework}.getFireworkMeta()
+	set {_effect} to FireworkEffect.builder().flicker(true).withTrail().withColor(Color..{_color}).withFade(Color..{_color})
+	loop {_finalColors::*}:
+		{_effect}.withColor(Color..loop-value-1)
+		{_effect}.withFade(Color..loop-value-1)
+	{_effect}.build()	
+	{_fireworkMeta}.setPower({_power})
+	{_fireworkMeta}.addEffect({_effect}.build())
+	{_firework}.setFireworkMeta({_fireworkMeta})
 
 function tnt_set(arena: text, p: player):	
 	set {_w} to world of {_p}
