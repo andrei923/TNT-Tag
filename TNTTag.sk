@@ -1,8 +1,7 @@
 options:
 
-	#MESSAGES
-	prefix: &6&lTNT TAG &8&l» &7
-	version: v.0.1.0
+	#Messages
+	version: v.1.1.0
 	
 	#%size of {tnt::arena::%{_arena}%::ninjas::*}% = current players, %{tnt::arena::%{_arena}%::max}% = max arena players.
 	join: &a%{_p}'s display name% &ehas joined to the game &e(&b%size of {tnt::arena::%{_arena}%::ninjas::*}%&e/&b%{tnt::arena::%{_arena}%::max}%&e).
@@ -24,12 +23,12 @@ options:
 	second: second
 	seconds: seconds
 
-	#SCOREBOARD
+	#Scoreboard
 	target-tag: &cTag Someone!
 	target-run: &aRun away!
 	website: &eMC.SERVER.NET
 	
-	#SETTINGS
+	#Settings
 	chat-format: &7%player's display name% &8&l» &7%message%
 	lobby-time: 30
 	action-bar-tag: &cYou're IT, &ctag Someone! &7(&aNearest player %{_closest}%m&7)
@@ -43,18 +42,18 @@ options:
 	teleporter-item: compass
 	teleporter-name: &aPlayer Teleporter
 
-	#MENUS
+	#Menus
 	arena-list: &8&l» &e&nTNT Tag - Arenas
 	player-teleporter: &8&l» &7Player Teleporter
 
-	#TITLES
+	#Titles
 	death-title: &c&lBOOM
 	death-subtitle: &7&nYou are eliminated!
 
 	game-start-title: &eGame Starts in &a%{tnt::arena::%{_arena}%::seconds}%
 	game-start-subtitle: &e%{_time}%
 
-	#SIGN
+	#Sign
 
 	line-1: &8» &7Arena: &b%{_arena}% &8«
 	line-2: &8» &a%{tnt::arena::%{_arena}%::status}% &8«
@@ -80,30 +79,13 @@ import:
 	fr.mrmicky.fastparticle.FastParticle
 	fr.mrmicky.fastparticle.ParticleType	
 	org.bukkit.inventory.meta.FireworkMeta	
-			
-local effect create scoreboard for %player%:	
-	trigger:
-		if {tnt::cache::TitleManager}.hasScoreboard(expr-1) is true:
-			{tnt::cache::TitleManager}.removeScoreboard(expr-1)
-		{tnt::cache::TitleManager}.giveScoreboard(expr-1)
 
-local effect delete scoreboard of %player%:	
-	trigger:
-		{tnt::cache::TitleManager}.removeScoreboard(expr-1)	
-
-local effect set scoreboard title of %player% to %string%:	
-	trigger:
-		{tnt::cache::TitleManager}.setScoreboardTitle(expr-1 and expr-2)
-
-local effect set scoreboard line %number% of %player% to %string%:	
-	trigger:
-		{tnt::cache::TitleManager}.setScoreboardValue(expr-2, expr-1 and expr-3)
 
 command tnttag [<text = help>] [<text>] [<text>]:
 	aliases: tnt
 	executable by: players
 	trigger:
-		if arg-1 is "help" or "createarena" or "SetSpawn" or "join" or "leave" or "setlobby" or "deleteArena" or "list" or "autojoin" or "savearena" or "autojoin" or "stats" or "SetArenaLobby" or "start" or "reload" or "SetMin" or "SetMax" or "SetSpawn" or "SetMapName":
+		if arg-1 is "help" or "createarena" or "SetSpawn" or "join" or "leave" or "setlobby" or "deleteArena" or "list" or "autojoin" or "savearena" or "autojoin" or "stats" or "setarenalobby" or "start" or "reload" or "setminplayers" or "setmaxplayers" or "setspawn" or "setmapname":
 			if player have permission "tnt.player":
 				if arg 1 is "help":
 					send "&7&l------------&8[ &6&lTNT Tag &8]&7&l------------"
@@ -117,8 +99,8 @@ command tnttag [<text = help>] [<text>] [<text>]:
 						send "&7/tnt SetLobby"
 						send "&7/tnt CreateArena &8(&7arena_name&8)"			
 						send "&7/tnt SetArenaLobby &8(&7arena_name&8)"	
-						send "&7/tnt SetMin &8(&7arena_name&8)"	
-						send "&7/tnt SetMax &8(&7arena_name&8)"		
+						send "&7/tnt SetMinPlayers &8(&7arena_name&8)"	
+						send "&7/tnt SetMaxPlayers &8(&7arena_name&8)"		
 						send "&7/tnt SetSpawn &8(&7arena_name&8)"			
 						send "&7/tnt SetMapName &8(&7arena_name&8)"						
 						send "&7/tnt SaveArena &8(&7arena_name&8)"							
@@ -131,7 +113,7 @@ command tnttag [<text = help>] [<text>] [<text>]:
 				if arg 1 is "list":		
 					if {tnt::player::%player%::state} is not set:	
 						open chest inventory with 6 rows named "{@arena-list}" to player	
-						set {_slot} to 10	
+						set {_slot} to 10
 						wait a tick						
 						loop {tnt::arenas::*}:
 							set {_item} to green clay named "&8» &7Arena: &e%loop-value%"
@@ -168,48 +150,50 @@ command tnttag [<text = help>] [<text>] [<text>]:
 					if player has permission "tnt.admin":		
 						if arg-2 is set:
 							if {tnt::arena::%arg-2%::state} is not set:
+								set {tnt::arena::%arg-2%::min} to 2
+								set {tnt::arena::%arg-2%::max} to 24
 								set {tnt::arena::%arg-2%::state} to "setup"
-								send "{@prefix}&aArena &c%arg-2% &ahas been created!"
+								send "&aArena &c%arg-2% &ahas been created!"
 							else:
-								send "{@prefix}&aThis arena already exists!"	
+								send "&aThis arena already exists!"	
 						else:
-							send "{@prefix}&aSpecify Arena!"				
-				if arg 1 is "SetArenaLobby" or "SetMax" or "SetMin" or "SetSpawn" or "SetMapName":
+							send "&aSpecify Arena!"				
+				if arg 1 is "SetArenaLobby" or "SetMaxPlayers" or "SetMinPlayers" or "SetSpawn" or "SetMapName":
 					if player has permission "tnt.admin":	
 						if {tnt::arena::%arg-2%::state} is "setup" or "ready":
 							if arg 1 is "SetArenaLobby":
 								set {tnt::arena::%arg-2%::lobby} to location of player
-								send "{@prefix}&aLobby for Arena &3%arg-2% &ahas been set!"
-							if arg 1 is "SetMax":
+								send "&aLobby for Arena &3%arg-2% &ahas been set!"
+							if arg 1 is "SetMaxPlayers":
 								set {tnt::arena::%arg-2%::max} to arg-3 parsed as number
-								send "{@prefix}&aMaximum players for Arena &3%arg-2% &ahas been set!"	
+								send "&aMaximum players for Arena &3%arg-2% &ahas been set!"	
 							if arg 1 is "SetMapName":
 								set {tnt::arena::%arg-2%::map} to arg-3
-								send "{@prefix}&aMap Name for Arena &3%arg-2% &ahas been set!"								
-							if arg 1 is "SetMin":
+								send "&aMap Name for Arena &3%arg-2% &ahas been set!"								
+							if arg 1 is "SetMinPlayers":
 								set {tnt::arena::%arg-2%::min} to arg-3 parsed as number
-								send "{@prefix}&aMinimum players for Arena &3%arg-2% &ahas been set!"							
+								send "&aMinimum players for Arena &3%arg-2% &ahas been set!"							
 							if arg 1 is "SetSpawn":
 								set {tnt::arena::%arg-2%::spawn} to location of player
-								send "{@prefix}&aSpawn for Arena &3%arg-2% &ahas been set!"							
+								send "&aSpawn for Arena &3%arg-2% &ahas been set!"							
 						else:
-							send "{@prefix}&aThis arena not exists"											
+							send "&aThis arena not exists"											
 				if arg 1 is "setlobby":	
 					if player has permission "tnt.admin":
 						set {tnt::lobby} to location of player
-						send "{@prefix}&aLobby set."										
+						send "&aLobby set."										
 				if arg 1 is "resetstats":	
 					if player has permission "tnt.admin":		
 						set {_p} to arg-2 parsed as player
 						tnt_stats("reset", {_p})
-						send "{@prefix}&cReseted Stats for &a%{_p}%"						
+						send "&cReseted Stats for &a%{_p}%"						
 				if arg 1 is "start":
 					if player has permission "tnt.admin":
 						size of {tnt::arena::%{tnt::player::%player%::arena}%::ninjas::*} > 1
 						tnt_start({tnt::player::%player%::arena})
 				if arg 1 is "reload":		
 					if player has permission "tnt.admin":
-						broadcast "{@prefix}&aReloading..."
+						broadcast "&aReloading..."
 						make console execute command "sk reload %script%"
 				if arg 1 is "savearena":	
 					if player has permission "tnt.admin":		
@@ -221,29 +205,29 @@ command tnttag [<text = help>] [<text>] [<text>]:
 											if {tnt::arena::%arg-2%::map} is set:	
 												set {tnt::arena::%arg-2%::state} to "ready"
 												add arg-2 to {tnt::arenas::*}
-												send "{@prefix}&aArena &c%arg-2% &ahas been saved."
+												send "&aArena &c%arg-2% &ahas been saved."
 												tnt_resetarena(arg-2)
 											else:
-												send "{@prefix}&aMap name is not set!"											
+												send "&aMap name is not set!"											
 										else:
-											send "{@prefix}&aMinimum players is not set!"											
+											send "&aMinimum players is not set!"											
 									else:
-										send "{@prefix}&aMaximum players is not set!"									
+										send "&aMaximum players is not set!"									
 								else:
-									send "{@prefix}&aArena spawn is not set!"																																										
+									send "&aArena spawn is not set!"																																										
 							else:
-								send "{@prefix}&aLobby is not set!"						
+								send "&aLobby is not set!"						
 						else:
-							send "{@prefix}&aThis arena not exists"
+							send "&aThis arena not exists"
 				if arg 1 is "deletearena":	
 					if player has permission "tnt.admin":		
 						if {tnt::arena::%arg-2%::state} is set:
 							tnt_resetarena(arg-2)
 							delete {tnt::arena::%arg-2%::*}
 							remove arg-2 from {tnt::arenas::*}
-							send "{@prefix}&aArena &c%arg-2% &ahas been deleted."
+							send "&aArena &c%arg-2% &ahas been deleted."
 						else:
-							send "{@prefix}&aThis arena not exists"
+							send "&aThis arena not exists"
 
 on chat:
 	if {tnt::player::%player%::state} is "IN-GAME" or "IN-GAME-SPEC":
@@ -314,8 +298,8 @@ on load:
 	delete {tnt::player::*}
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "{@prefix}&aLoading &e{@version}&a..." to console
-	broadcast "{@prefix}&aPlugin loaded!"
+	send "&aLoading &e{@version}&a..." to console
+	broadcast "&aPlugin loaded!"
 	send " " to console
 	send "&7&l--------------------------------------------" to console
 	#Fixing old arenas...
@@ -366,8 +350,8 @@ function tnt_inventory_manager(p: player, type: text):
 on unload:
 	send "&7&l--------------------------------------------" to console
 	send " " to console
-	send "{@prefix}&aDisabling &e{@version}&a..." to console
-	send "{@prefix}&e{@version} &adisabled!" to console
+	send "&aDisabling &e{@version}&a..." to console
+	send "&e{@version} &adisabled!" to console
 	send " " to console
 	send "&7&l--------------------------------------------" to console
 
@@ -386,7 +370,7 @@ function tnt_leave(p: player):
 		set {_arena} to {tnt::player::%{_p}%::arena}
 		if {tnt::player::%{_p}%::state} is "IN-GAME":
 			tnt_remove({_p}, {tnt::player::%{_p}%::arena})
-			send "{@prefix}{@leave}" to {tnt::arena::%{_arena}%::ninjas::*}	
+			send "{@leave}" to {tnt::arena::%{_arena}%::ninjas::*}	
 			loop {tnt::arena::%{_arena}%::ninjas::*}:
 				size of {tnt::arena::%{_arena}%::ninjas::*} = 4 or 3 or 2 or 1:
 					set {_size} to size of {tnt::arena::%{_arena}%::ninjas::*}
@@ -401,7 +385,7 @@ function tnt_leave(p: player):
 		teleport {_p} to {tnt::lobby}
 		tnt_inventory_manager({_p}, "restore")
 	else:
-		send "{@prefix}{@not-in-game}" to {_p}
+		send "{@not-in-game}" to {_p}
 		
 function tnt_join(p: player, arena: text):	
 	if {tnt::player::%{_p}%::state} is not set:
@@ -417,20 +401,20 @@ function tnt_join(p: player, arena: text):
 					tnt_update_sign({_arena})	
 					if size of {tnt::arena::%{_arena}%::ninjas::*} = 2:
 						tnt_start_countdown({_arena})											
-					send "{@prefix}{@join}" to {tnt::arena::%{_arena}%::ninjas::*}
+					send "{@join}" to {tnt::arena::%{_arena}%::ninjas::*}
 					teleport {_p} to {tnt::arena::%{_arena}%::lobby}
 					tnt_createBoard({_p}, "TNT-WAITING", 10)
 				else:
 					tnt_setspec({_p}, false)
 					add {_p} to {tnt::arena::%{_arena}%::bad-ninjas::*}
 					teleport {_p} to a random element out of {tnt::arena::%{_arena}%::bad-ninjas::*}
-					send "{@prefix}{@game-full}" to {_p}
+					send "{@game-full}" to {_p}
 			else:
-				send "{@prefix}{@game-running}" to {_p}
+				send "{@game-running}" to {_p}
 		else:
-			send "{@prefix}{@not-exist}" to {_p}
+			send "{@not-exist}" to {_p}
 	else:
-		send "{@prefix}{@in-game}" to {_p}
+		send "{@in-game}" to {_p}
 					
 on join:
 	tnt_stats("check", player)
@@ -443,12 +427,12 @@ on right click:
 			tnt_leave(player)
 		name of event-item is "{@teleporter-name}":
 			open chest inventory with 6 rows named "{@player-teleporter}" to player	
-			set {_slot} to 0
+			set 1 to 0
 			loop {tnt::arena::%{tnt::player::%player%::arena}%::ninjas::*}:
 				set {_target} to loop-value-1
-				make a gui slot {_slot}-1 of player with skull of loop-value named "&e%loop-value%" to run:
+				make a gui slot 1-1 of player with skull of loop-value named "&e%loop-value%" to run:
 					teleport player to {_target}
-				add 1 to {_slot}			
+				add 1 to 1			
 		
 on quit:
 	tnt_leave(player)
@@ -603,7 +587,7 @@ function tnt_start_countdown(arena: text):
 				wait a second
 				remove 1 from {tnt::arena::%{_arena}%::seconds}	
 				if {tnt::arena::%{_arena}%::seconds} = 1 or 2 or 3 or 4 or 5 or 10:
-					send "{@prefix}{@starting}" to {tnt::arena::%{_arena}%::ninjas::*}
+					send "{@starting}" to {tnt::arena::%{_arena}%::ninjas::*}
 					{tnt::arena::%{_arena}%::seconds} > 1:
 						set {_time} to "{@seconds}"
 					else:
@@ -625,7 +609,7 @@ on sign change:
 		set {tnt::arena::%line 3%::sign} to location of event-block
 		tnt_update_sign(line 3)
 	else:
-		send "{@prefix}{@not-exist}"	
+		send "{@not-exist}"	
 
 on right click on sign:
 	loop {tnt::arenas::*}:
@@ -661,11 +645,6 @@ function tnt_clear_player(p: player):
 	loop ...{_p}.getActivePotionEffects():
 		{_p}.removePotionEffect(loop-value.getType())		
 	
-function tnt_setSlot(p: player, slot: integer, t: text):
-	add "&a", "&b", "&c", "&d", "&e", "&1", "&2", "&3", "&4", "&5", "&6", "&7", "&8", "&9" and "&f" to {_d::*}
-	if {_slot} is between 1 and 15: 
-		set scoreboard line {_slot} of {_p} to "%{_d::%{_slot}%}%%{_t}%"
-
 function tnt_createBoard(p: player, t: text, size: integer = 15):
 	create scoreboard for {_p}
 	set scoreboard title of {_p} to "&e&lTNT TAG"
@@ -682,29 +661,29 @@ function tnt_createBoard(p: player, t: text, size: integer = 15):
 			else:
 				set {_target} to "{@target-run}"
 				send action bar "{@action-bar-run}" to {_p}
-			tnt_setSlot({_p}, 1, "&7%now%")		
-			tnt_setSlot({_p}, 2, "")					
-			tnt_setSlot({_p}, 3, "&7Round ##%{tnt::arena::%{tnt::player::%{_p}%::arena}%::round}%")					
-			tnt_setSlot({_p}, 4, "")				
-			tnt_setSlot({_p}, 5, "&eExplosion In &c%{tnt::arena::%{tnt::player::%{_p}%::arena}%::explode}%&cs")	
-			tnt_setSlot({_p}, 6, "")				
-			tnt_setSlot({_p}, 7, "&fGoal: %{_target}%")					
-			tnt_setSlot({_p}, 8, "")		
-			tnt_setSlot({_p}, 9, "&fAlive: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}% &aPlayers")					
-			tnt_setSlot({_p}, 10, "")										
-			tnt_setSlot({_p}, 11, "{@website}")							
+			set scoreboard line 1 of {_p} to colored "&7%now%"		
+			set scoreboard line 2 of {_p} to colored "")					
+			set scoreboard line 3 of {_p} to colored "&7Round ##%{tnt::arena::%{tnt::player::%{_p}%::arena}%::round}%"				
+			set scoreboard line 4 of {_p} to colored ""			
+			set scoreboard line 5 of {_p} to colored "&eExplosion In &c%{tnt::arena::%{tnt::player::%{_p}%::arena}%::explode}%&cs"
+			set scoreboard line 6 of {_p} to colored ""			
+			set scoreboard line 7 of {_p} to colored "&fGoal: %{_target}%"					
+			set scoreboard line 8 of {_p} to colored ""	
+			set scoreboard line 9 of {_p} to colored "&fAlive: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}% &aPlayers"				
+			set scoreboard line 10 of {_p} to colored "")										
+			set scoreboard line 11 of {_p} to colored "{@website}"							
 			wait a second
 	if {_t} is "TNT-WAITING":
 		while {tnt::arena::%{tnt::player::%{_p}%::arena}%::status} is "WAITING" or "STARTING":	
-			tnt_setSlot({_p}, 1, "&7%now%")
-			tnt_setSlot({_p}, 2, "")		
-			tnt_setSlot({_p}, 3, "&fMap: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::map}%")		
-			tnt_setSlot({_p}, 4, "&fPlayers: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}%/%{tnt::arena::%{tnt::player::%{_p}%::arena}%::max}%")	
-			tnt_setSlot({_p}, 5, "")				
-			tnt_setSlot({_p}, 6, "&fStarting in: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::seconds}%s")				
-			tnt_setSlot({_p}, 7, "")						
-			tnt_setSlot({_p}, 8, "&fArena: &a%{tnt::player::%{_p}%::arena}%")					
-			tnt_setSlot({_p}, 9, "")	
-			tnt_setSlot({_p}, 10, "{@website}")						
+			set scoreboard line 1 of {_p} to colored "&7%now%"
+			set scoreboard line 2 of {_p} to colored ""
+			set scoreboard line 3 of {_p} to colored "&fMap: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::map}%")		
+			set scoreboard line 4 of {_p} to colored "&fPlayers: &a%size of {tnt::arena::%{tnt::player::%{_p}%::arena}%::ninjas::*}%/%{tnt::arena::%{tnt::player::%{_p}%::arena}%::max}%"
+			set scoreboard line 5 of {_p} to colored ""
+			set scoreboard line 6 of {_p} to colored "&fStarting in: &a%{tnt::arena::%{tnt::player::%{_p}%::arena}%::seconds}%s"		
+			set scoreboard line 7 of {_p} to colored ""					
+			set scoreboard line 8 of {_p} to colored "&fArena: &a%{tnt::player::%{_p}%::arena}%"			
+			set scoreboard line 9 of {_p} to colored ""
+			set scoreboard line 10 of {_p} to colored "{@website}"		
 			wait a second		
 				
