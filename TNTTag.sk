@@ -369,13 +369,12 @@ function tnt_leave(p: player):
 	if {tnt::player::%{_p}%::state} is "IN-GAME" or "IN-GAME-SPEC":
 		set {_arena} to {tnt::player::%{_p}%::arena}
 		if {tnt::player::%{_p}%::state} is "IN-GAME":
-			tnt_remove({_p}, {tnt::player::%{_p}%::arena})
 			send "{@leave}" to {tnt::arena::%{_arena}%::ninjas::*}	
 			loop {tnt::arena::%{_arena}%::ninjas::*}:
 				size of {tnt::arena::%{_arena}%::ninjas::*} = 4 or 3 or 2 or 1:
 					set {_size} to size of {tnt::arena::%{_arena}%::ninjas::*}
 					set {tnt::arena::%{_arena}%::summary::%{_size}%} to loop-value-2		
-			tnt_check_win({tnt::player::%{_p}%::arena})	
+			tnt_remove({_p}, {tnt::player::%{_p}%::arena})					
 		if {tnt::player::%{_p}%::state} is "IN-GAME-SPEC":
 			remove {_p} from {tnt::arena::%{_arena}%::bad-ninjas::*}
 		tnt_clear_player({_p})
